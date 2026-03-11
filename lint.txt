@@ -1,0 +1,183 @@
+
+D:\project_immortal\src\app\admin\dashboard\page.tsx
+    8:94   warning  'LineChart' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+    8:105  warning  'Line' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+  104:41   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-explicit-any
+  122:23   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-explicit-any
+  146:55   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-explicit-any
+  227:72   error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+D:\project_immortal\src\app\admin\dashboard\page.tsx:227:72
+  225 |                                                 ))}
+  226 |                                             </Pie>
+> 227 |                                             <RechartsTooltip content={<ChartTooltip />} />
+      |                                                                        ^^^^^^^^^^^^ This component is created during render
+  228 |                                         </PieChart>
+  229 |                                     </ResponsiveContainer>
+  230 |                                 </div>
+
+D:\project_immortal\src\app\admin\dashboard\page.tsx:146:26
+  144 |
+  145 |     /* Custom tooltip for charts */
+> 146 |     const ChartTooltip = ({ active, payload, label }: any) => {
+      |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 147 |         if (!active || !payload?.length) return null;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 148 |         return (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 149 |             <div className="bg-zinc-900 border border-white/10 rounded-xl px-3.5 py-2.5 shadow-xl shadow-black/50">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 150 |                 <p className="text-xs text-zinc-400 mb-0.5">{label || payload[0]?.name}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 151 |                 <p className="text-sm font-semibold text-white">{payload[0]?.value}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 152 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 153 |         );
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 154 |     };
+      | ^^^^^^ The component is created during render here
+  155 |
+  156 |     return (
+  157 |         <div className="text-white w-full max-w-7xl mx-auto space-y-8">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 react-hooks/static-components
+  268:64   error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+D:\project_immortal\src\app\admin\dashboard\page.tsx:268:64
+  266 |                                     <XAxis dataKey="date" stroke="none" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} tickLine={false} axisLine={false} />
+  267 |                                     <YAxis stroke="none" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} tickLine={false} axisLine={false} allowDecimals={false} />
+> 268 |                                     <RechartsTooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.06)', strokeWidth: 1 }} />
+      |                                                                ^^^^^^^^^^^^ This component is created during render
+  269 |                                     <Area type="monotone" dataKey="count" name="Submissions" stroke="#6366f1" strokeWidth={2} fill="url(#colorCount)" dot={{ r: 3, fill: '#6366f1', strokeWidth: 0 }} activeDot={{ r: 5, fill: '#818cf8', strokeWidth: 0 }} />
+  270 |                                 </AreaChart>
+  271 |                             </ResponsiveContainer>
+
+D:\project_immortal\src\app\admin\dashboard\page.tsx:146:26
+  144 |
+  145 |     /* Custom tooltip for charts */
+> 146 |     const ChartTooltip = ({ active, payload, label }: any) => {
+      |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 147 |         if (!active || !payload?.length) return null;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 148 |         return (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 149 |             <div className="bg-zinc-900 border border-white/10 rounded-xl px-3.5 py-2.5 shadow-xl shadow-black/50">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 150 |                 <p className="text-xs text-zinc-400 mb-0.5">{label || payload[0]?.name}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 151 |                 <p className="text-sm font-semibold text-white">{payload[0]?.value}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 152 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 153 |         );
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 154 |     };
+      | ^^^^^^ The component is created during render here
+  155 |
+  156 |     return (
+  157 |         <div className="text-white w-full max-w-7xl mx-auto space-y-8">  react-hooks/static-components
+
+D:\project_immortal\src\app\admin\submissions\[id]\page.tsx
+   16:5   warning  'Loader2' is defined but never used       @typescript-eslint/no-unused-vars
+   35:20  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  160:27  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  193:23  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\project_immortal\src\app\admin\submissions\page.tsx
+  4:10  warning  'Loader2' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\project_immortal\src\app\admin\users\page.tsx
+  40:28  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+D:\project_immortal\src\app\admin\verify-otp\page.tsx
+  69:18  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  69:21  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  96:18  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  96:21  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\project_immortal\src\app\api\admin\analytics\route.ts
+  11:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\project_immortal\src\app\api\admin\send-otp\route.ts
+  39:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\project_immortal\src\app\api\admin\submissions\route.ts
+  3:28  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  5:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+
+D:\project_immortal\src\app\api\admin\update-status\route.ts
+  56:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\project_immortal\src\app\api\admin\verify-otp\route.ts
+  43:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\project_immortal\src\app\api\project-request\route.ts
+   89:17  warning  'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  105:19  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+D:\project_immortal\src\app\api\submit\route.ts
+  63:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\project_immortal\src\app\page.tsx
+  54:37  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+D:\project_immortal\src\app\privacy-policy\page.tsx
+   92:78   error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+   93:217  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  138:195  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  207:94   error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  230:33   error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  232:178  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  234:177  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+D:\project_immortal\src\app\start-project\page.tsx
+   9:11  warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  97:18  warning  'err' is defined but never used              @typescript-eslint/no-unused-vars
+
+D:\project_immortal\src\app\terms\page.tsx
+   82:441  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+   87:316  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+   89:242  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+   92:98   error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  106:168  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  111:201  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+D:\project_immortal\src\components\admin\Sidebar.tsx
+  6:59  warning  'LogOut' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\project_immortal\src\components\admin\SubmissionsTable.tsx
+  20:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\project_immortal\src\components\navbar.tsx
+  6:18  warning  'useSpring' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\project_immortal\src\components\ui\animated-web3-landing-page.tsx
+    4:8   warning  'Image' is defined but never used              @typescript-eslint/no-unused-vars
+    5:8   warning  'Link' is defined but never used               @typescript-eslint/no-unused-vars
+   82:11  warning  'glowY' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  102:11  warning  'navItems' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\project_immortal\src\components\ui\modern-stunning-sign-in.tsx
+   4:10  warning  'useState' is defined but never used      @typescript-eslint/no-unused-vars
+  81:26  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  81:29  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  96:23  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\project_immortal\src\components\ui\shader-animation.tsx
+  12:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\project_immortal\src\components\ui\sign-in.tsx
+  29:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+D:\project_immortal\src\components\ui\testimonial-card.tsx
+  58:17  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  58:24  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+D:\project_immortal\src\components\ui\web-gl-shader.tsx
+  13:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+??? 58 problems (38 errors, 20 warnings)
+

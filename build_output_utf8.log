@@ -1,0 +1,119 @@
+﻿
+> project_immortal@0.1.0 build
+> next build
+
+Γû▓ Next.js 16.1.6 (Turbopack)
+
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 2.5s
+  Running TypeScript ...
+node.exe : Failed to compile.
+At line:1 char:1
++ & 
+"C:\nvm4w\nodejs/node.exe" "C
+:\nvm4w\nodejs/node_modules/n
+pm/bin/np ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: (Failed   
+  to compile.:String) [],    
+ RemoteException
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+
+./src/components/sections/gro
+wth-story.tsx:121:33
+Type error: Type '{ hidden: 
+{ opacity: number; y: 
+number; }; visible: { 
+opacity: number; y: number; 
+transition: { duration: 
+number; ease: string; }; }; 
+}' is not assignable to type 
+'Variants'.
+  Property 'visible' is 
+incompatible with index 
+signature.
+    Type '{ opacity: number; 
+y: number; transition: { 
+duration: number; ease: 
+string; }; }' is not 
+assignable to type 'Variant'.
+      Type '{ opacity: 
+number; y: number; 
+transition: { duration: 
+number; ease: string; }; }' 
+is not assignable to type 
+'TargetAndTransition'.
+        Type '{ opacity: 
+number; y: number; 
+transition: { duration: 
+number; ease: string; }; }' 
+is not assignable to type '{ 
+transition?: Transition<any> 
+| undefined; transitionEnd?: 
+ResolvedValues$1 | 
+undefined; }'.
+          Types of property 
+'transition' are 
+incompatible.
+            Type '{ 
+duration: number; ease: 
+string; }' is not assignable 
+to type 'Transition<any> | 
+undefined'.
+              Type '{ 
+duration: number; ease: 
+string; }' is not assignable 
+to type 'TransitionWithValueO
+verrides<any>'.
+                Type '{ 
+duration: number; ease: 
+string; }' is not assignable 
+to type 'ValueAnimationTransi
+tion<any>'.
+                  Types of 
+property 'ease' are 
+incompatible.
+                    Type 
+'string' is not assignable 
+to type 'Easing | Easing[] | 
+undefined'.
+
+[0m [90m 119 |[39m        
+                     [33m<[
+39m[33mmotion[39m[33m.[39
+mdiv
+ [90m 120 |[39m            
+                     
+key[33m=[39m{i}
+[31m[1m>[22m[39m[90m 
+121 |[39m                   
+              variants[33m=
+[39m{itemVariants}
+ [90m     |[39m            
+                     
+[31m[1m^[22m[39m
+ [90m 122 |[39m            
+                     
+whileHover[33m=[39m{{ 
+y[33m:[39m 
+[33m-[39m[35m8[39m }}
+ [90m 123 |[39m            
+                     classNam
+e[33m=[39m[32m"group 
+relative p-8 rounded-3xl 
+border border-white/5 
+bg-white/[0.02] 
+backdrop-blur-xl 
+overflow-hidden 
+transition-all 
+duration-500"[39m
+ [90m 124 |[39m            
+                 
+[33m>[39m[0m
+Next.js build worker exited 
+with code: 1 and signal: null

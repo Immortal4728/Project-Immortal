@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@insforge/mcp": "^1.2.6",
+    "pg": "^8.20.0"
+  }
+}
