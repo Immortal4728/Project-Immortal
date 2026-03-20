@@ -3,48 +3,20 @@ import { query } from "@/lib/db";
 
 export async function GET(req: NextRequest) {
   try {
-    const authHeader = req.headers.get("authorization");
-    const cookieToken = req.cookies.get("token")?.value;
+    // Rely on edge middleware for strict token validation
+    const userEmail = req.headers.get("x-admin-email");
+    let firebaseDisplayName = req.headers.get("x-admin-name");
 
-    let token = cookieToken;
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-      token = authHeader.split(" ")[1];
-    }
-
-    if (!token)
-      return NextResponse.json(
-        { success: false, error: "Failed to locate verified admin session" },
-        { status: 401 },
-      );
-
-    const firebaseApiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
-    if (!firebaseApiKey)
-      return NextResponse.json(
-        { success: false, error: "Server configuration error" },
-        { status: 500 },
-      );
-    const verifyResponse = await fetch(
-      `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${firebaseApiKey}`,
-      {
-        method: "POST",
-        body: JSON.stringify({ idToken: token }),
-        headers: { "Content-Type": "application/json" },
-      },
-    );
-    const decoded = await verifyResponse.json();
-    const firebaseUser = decoded.users?.[0];
-    const userEmail = firebaseUser?.email;
-
-    if (!userEmail)
+    if (!userEmail) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
         { status: 401 },
       );
+    }
 
-    // Extract real name from Firebase profile
-    const firebaseDisplayName =
-      firebaseUser?.displayName ||
-      userEmail.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+    if (!firebaseDisplayName) {
+        firebaseDisplayName = userEmail.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+    }
 
     // Lookup in `employees` table natively matching this email
     let result = await query(`SELECT * FROM employees WHERE email = $1`, [

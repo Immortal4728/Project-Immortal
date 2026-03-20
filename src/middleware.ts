@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { jwtVerify, createRemoteJWKSet } from 'jose';
+
+// Create a remote JWK set to verify Firebase tokens. 
+// This fetches the public keys once and caches them securely, making subsequent checks 0ms.
+const JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'));
 
 export async function middleware(request: NextRequest) {
     const isApiRoute = request.nextUrl.pathname.startsWith('/api/admin');
@@ -24,8 +29,6 @@ export async function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL('/employee/login', request.url));
         }
 
-        // Token exists. Further validation (e.g. database lookup) can happen at the API layer 
-        //, but its presence allows them past the middleware.
         return NextResponse.next();
     }
 
@@ -46,61 +49,71 @@ export async function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL('/login', request.url));
         }
 
-        // 2. Verify the Firebase ID token cryptographically using the core Identity Toolkit API
-        // This validates the token string is not expired and is authentically minted by Firebase
+        // 2. Verify the Firebase ID token cryptographically without doing an external network request
         try {
-            const firebaseApiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
-            if (!firebaseApiKey) {
-                console.error("NEXT_PUBLIC_FIREBASE_API_KEY is not set");
+            const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+            if (!projectId) {
+                console.error("NEXT_PUBLIC_FIREBASE_PROJECT_ID is not set");
                 return NextResponse.json({ success: false, error: 'Server configuration error' }, { status: 500 });
             }
 
-            const verifyTokenResponse = await fetch(
-                `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${firebaseApiKey}`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ idToken: token })
-                }
-            );
+            let userEmail: string;
+            let userName: string;
 
-            const decodedTokenData = await verifyTokenResponse.json();
-
-            // 3. Reject invalid tokens
-            if (!verifyTokenResponse.ok || decodedTokenData.error || !decodedTokenData.users || decodedTokenData.users.length === 0) {
-                if (isApiRoute) {
-                    return NextResponse.json({ success: false, error: 'Unauthorized: Invalid or expired token' }, { status: 401 });
-                }
-                // If it's a page and token is bad, delete the stale cookie and redirect
-                const response = NextResponse.redirect(new URL('/login', request.url));
-                response.cookies.delete('token');
-                return response;
+            if (process.env.NODE_ENV === "development") {
+                // Decode token without cryptographic verification in development
+                // because Edge Runtime clears global scope, causing a Google JWK network fetch on every request.
+                const base64Url = token.split('.')[1];
+                let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const pad = base64.length % 4;
+                if(pad) base64 += '='.repeat(4 - pad);
+                const decodedPayload = JSON.parse(atob(base64));
+                userEmail = decodedPayload.email;
+                userName = decodedPayload.name || "";
+            } else {
+                // Verify JWT Signature
+                const result = await jwtVerify(token, JWKS, {
+                    issuer: `https://securetoken.google.com/${projectId}`,
+                    audience: projectId,
+                });
+                userEmail = result.payload.email as string;
+                userName = (result.payload.name || "") as string;
             }
 
-            // 4. Admin Email Whitelist Check
-            const userEmail = decodedTokenData.users[0]?.email;
-
+            // 3. Admin Email Whitelist Check
             const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "").split(",").map(e => e.trim()).filter(Boolean);
 
             if (!userEmail || !ADMIN_EMAILS.includes(userEmail)) {
                 if (isApiRoute) {
                     return NextResponse.json({ success: false, error: 'Forbidden: User is not an admin' }, { status: 403 });
                 }
-                // If unauthorized user tries to access a page, redirect and clear their cookies
                 const response = NextResponse.redirect(new URL('/login', request.url));
                 response.cookies.delete('token');
                 return response;
             }
+
+            // 4. Pass the verified email state down to API routes
+            const requestHeaders = new Headers(request.headers);
+            requestHeaders.set('x-admin-email', userEmail);
+            requestHeaders.set('x-admin-name', userName);
+
+            return NextResponse.next({
+                request: {
+                    headers: requestHeaders,
+                },
+            });
+
         } catch (error) {
             console.error("Middleware token verification error:", error);
             if (isApiRoute) {
                 return NextResponse.json({ success: false, error: 'Unauthorized: Token validation failed' }, { status: 401 });
             }
-            return NextResponse.redirect(new URL('/login', request.url));
+            const response = NextResponse.redirect(new URL('/login', request.url));
+            response.cookies.delete('token');
+            return response;
         }
     }
 
-    // Continue to the requested route
     return NextResponse.next();
 }
 
