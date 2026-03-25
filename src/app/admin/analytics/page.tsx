@@ -39,34 +39,15 @@ interface AnalyticsData {
     };
 }
 
+import useSWR from "swr";
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
 export default function AnalyticsPage() {
-    const [data, setData] = useState<AnalyticsData | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { data: res, error: swrError } = useSWR("/api/admin/analytics", fetcher, { refreshInterval: 30000 });
 
-    const fetchAnalytics = async () => {
-        try {
-            const res = await fetch("/api/admin/analytics");
-            const result = await res.json();
-            if (result.success) {
-                setData(result.data);
-                setError(null);
-            } else {
-                setError(result.error);
-            }
-        } catch (err) {
-            console.error("Fetch analytics error:", err);
-            setError("Failed to load analytics");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchAnalytics();
-        const interval = setInterval(fetchAnalytics, 30000); // 30s polling
-        return () => clearInterval(interval);
-    }, []);
+    const data = res?.success ? res.data : null;
+    const loading = !res && !swrError;
+    const error = swrError || (res && !res.success ? res.error : null);
 
     const formatUptime = (seconds: number) => {
         const d = Math.floor(seconds / (3600 * 24));

@@ -6,39 +6,19 @@ import { insforge } from "@/lib/insforge";
 import { SubmissionsTable, TableSubmission } from "@/components/admin/SubmissionsTable";
 import Alert from "@/components/ui/alert";
 
+import useSWR from "swr";
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
 export default function SubmissionsPage() {
-    const [submissions, setSubmissions] = useState<TableSubmission[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [apiError, setApiError] = useState(false);
     const [actionAlert, setActionAlert] = useState<{ type: "success" | "error" | "info" | "warning", message: string } | null>(null);
 
-    useEffect(() => {
-        fetchSubmissions();
-    }, []);
+    const { data: subRes, error: swrError, mutate: fetchSubmissions } = useSWR("/api/admin/submissions", fetcher);
 
-    const fetchSubmissions = async () => {
-        try {
-            setLoading(true);
-            setApiError(false);
+    // subRes should contain { success: true, data: [...] } from the API route (which itself uses insforge)
+    const submissions = subRes?.success ? subRes.data : [];
+    const loading = !subRes && !swrError;
+    const apiError = swrError || (subRes && !subRes.success);
 
-            const { data, error } = await insforge.database
-                .from("project_requests")
-                .select("*")
-                .order("created_at", { ascending: false });
-
-            if (error) {
-                console.error("Failed to fetch from InsForge. Error:", error);
-                setApiError(true);
-            } else {
-                setSubmissions(data || []);
-            }
-        } catch (error) {
-            console.error("Failed to fetch submissions:", error);
-            setApiError(true);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleStatusUpdate = async (id: string | number, newStatus: string) => {
         try {

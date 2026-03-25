@@ -13,57 +13,45 @@ interface Customer {
     created_at: string;
 }
 
+import useSWR from "swr";
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
 export default function CustomersPage() {
     const router = useRouter();
-    const [customers, setCustomers] = useState<Customer[]>([]);
-    const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+
+    const { data: res, error: swrError, mutate: fetchCustomers } = useSWR("/api/admin/customers", fetcher);
+    
+    const customers = res?.success ? res.data : [];
+    const loading = !res && !swrError;
+    const error = swrError || (res && !res.success ? res.error : null);
 
     // Deletion Modal state
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
     const [isActionLoading, setIsActionLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
-    const fetchCustomers = async () => {
-        try {
-            setLoading(true);
-            const res = await fetch("/api/admin/customers");
-            const data = await res.json();
-            if (data.success) {
-                setCustomers(data.data);
-            } else {
-                console.error(data.error);
-                setError(data.error);
-            }
-        } catch (err) {
-            console.error("Fetch error:", err);
-            setError("Something went wrong loading customers");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchCustomers();
-    }, []);
+    const [actionError, setActionError] = useState<string | null>(null);
 
     const toggleStatus = async (customer: Customer) => {
         try {
             setIsActionLoading(true);
-            const res = await fetch(`/api/admin/customers/${customer.id}/status`, {
+            setActionError(null);
+            const response = await fetch(`/api/admin/customers/${customer.id}/status`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ active: !customer.account_active }),
             });
-            const data = await res.json();
+            const data = await response.json();
             if (data.success) {
                 fetchCustomers();
             } else {
-                setError(data.error);
+                setActionError(data.error);
             }
         } catch (err) {
             console.error(err);
+            setActionError("Failed to update status");
         } finally {
             setIsActionLoading(false);
         }
@@ -73,19 +61,21 @@ export default function CustomersPage() {
         if (!customerToDelete) return;
         try {
             setIsActionLoading(true);
-            const res = await fetch(`/api/admin/customers/${customerToDelete.id}`, {
+            setActionError(null);
+            const response = await fetch(`/api/admin/customers/${customerToDelete.id}`, {
                 method: "DELETE",
             });
-            const data = await res.json();
+            const data = await response.json();
             if (data.success) {
                 setShowDeleteModal(false);
                 setCustomerToDelete(null);
                 fetchCustomers();
             } else {
-                setError(data.error);
+                setActionError(data.error);
             }
         } catch (err) {
             console.error(err);
+            setActionError("Failed to delete account");
         } finally {
             setIsActionLoading(false);
         }
@@ -96,7 +86,7 @@ export default function CustomersPage() {
         setShowDeleteModal(true);
     };
 
-    const filteredCustomers = customers.filter((c) =>
+    const filteredCustomers = customers.filter((c: Customer) =>
         c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         c.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -151,7 +141,7 @@ export default function CustomersPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
-                                {filteredCustomers.map((c) => (
+                                {filteredCustomers.map((c: Customer) => (
                                     <tr key={c.id} className="hover:bg-white/[0.02] transition-colors">
                                         <td className="px-6 py-4 font-medium text-white">{c.name}</td>
                                         <td className="px-6 py-4 text-zinc-300">{c.email}</td>

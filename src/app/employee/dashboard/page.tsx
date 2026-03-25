@@ -15,7 +15,7 @@ import { LogoutModal } from "@/components/ui/logout-modal";
 
 interface ProjectFile {
     id: string;
-    file_type: string;
+    document_type: string;
 }
 
 interface ApprovedProject {
@@ -30,15 +30,16 @@ interface ApprovedProject {
     files?: ProjectFile[];
 }
 
-const DOC_TYPES = ["documentation", "record", "viva_questions"];
+const DOC_TYPES = ["record", "ppt", "viva", "notes"];
 const DOC_LABELS: Record<string, string> = {
-    documentation: "Documentation",
     record: "Project Record",
-    viva_questions: "Viva Questions",
+    ppt: "PPT Presentation",
+    viva: "Viva Questions",
+    notes: "Internal Notes",
 };
 
 function getDocProgress(files: ProjectFile[] = []) {
-    const uploaded = new Set(files.map((f) => f.file_type));
+    const uploaded = new Set(files.map((f) => f.document_type));
     return DOC_TYPES.map((type) => ({
         type,
         label: DOC_LABELS[type],

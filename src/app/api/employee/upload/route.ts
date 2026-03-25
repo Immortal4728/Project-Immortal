@@ -19,23 +19,23 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { project_id, file_name, file_url, file_type } = body;
+        const { project_id, file_name, file_url, document_type } = body;
 
-        if (!project_id || !file_name || !file_url || !file_type) {
+        if (!project_id || !file_name || !file_url || !document_type) {
             return NextResponse.json({ success: false, error: "Missing file details" }, { status: 400 });
         }
 
-        const validTypes = ["documentation", "record", "viva_questions", "notes"];
-        if (!validTypes.includes(file_type)) {
-            return NextResponse.json({ success: false, error: "Invalid file type" }, { status: 400 });
+        const validTypes = ["record", "ppt", "viva", "notes"];
+        if (!validTypes.includes(document_type)) {
+            return NextResponse.json({ success: false, error: "Invalid document type" }, { status: 400 });
         }
 
         // Insert into project_files
         const result = await query(
-            `INSERT INTO project_files (project_id, file_name, file_url, file_type, uploaded_by)
+            `INSERT INTO project_files (project_id, file_name, file_url, document_type, uploaded_by)
              VALUES ($1, $2, $3, $4, $5)
              RETURNING id, uploaded_at as created_at`,
-            [project_id, file_name, file_url, file_type, session.email]
+            [project_id, file_name, file_url, document_type, session.email]
         );
 
         return NextResponse.json({ success: true, data: result.rows[0] }, { status: 200 });

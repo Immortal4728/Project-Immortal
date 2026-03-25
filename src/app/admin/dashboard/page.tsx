@@ -14,54 +14,28 @@ type Analytics = {
     rejected: number;
 };
 
+import useSWR from "swr";
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
 export default function Dashboard() {
-    const [submissions, setSubmissions] = useState<TableSubmission[]>([]);
-    const [analytics, setAnalytics] = useState<Analytics | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [actionAlert, setActionAlert] = useState<{ type: "success" | "error" | "info" | "warning", message: string } | null>(null);
 
     /* ─── Data Fetching ─── */
-    useEffect(() => {
-        Promise.all([
-            fetch("/api/admin/submissions").then((res) => {
-                if (!res.ok) throw new Error("Failed to fetch submissions");
-                return res.json();
-            }),
-            fetch("/api/admin/dashboard/stats").then((res) => {
-                if (!res.ok) throw new Error("Failed to fetch dashboard stats");
-                return res.json();
-            })
-        ])
-            .then(([subData, analyticsData]) => {
-                if (subData && subData.success) {
-                    setSubmissions(subData.data);
-                } else {
-                    setError(subData?.error || "Failed to fetch submissions");
-                }
-                if (analyticsData && analyticsData.success) {
-                    setAnalytics(analyticsData.data);
-                } else {
-                    setError(analyticsData?.error || "Failed to fetch dashboard stats");
-                }
-            })
-            .catch((err) => {
-                setError(err.message || "An error occurred fetching dashboard data");
-            })
-            .finally(() => {
-                setLoading(false);
-            });
-    }, []);
+    const { data: subRes, error: subError, mutate: mutateSubmissions } = useSWR("/api/admin/submissions", fetcher);
+    const { data: analyticsRes, error: analyticsError, mutate: mutateAnalytics } = useSWR("/api/admin/dashboard/stats", fetcher);
+
+    const submissions = subRes?.success ? subRes.data : [];
+    const analytics = analyticsRes?.success ? analyticsRes.data : null;
+    
+    const error = subError || analyticsError || (subRes && !subRes.success ? subRes.error : null) || (analyticsRes && !analyticsRes.success ? analyticsRes.error : null);
+    const loading = !subRes || !analyticsRes;
 
     /* ─── Refresh data helper ─── */
     const refreshData = async () => {
         try {
-            const [subRes, analyticsRes] = await Promise.all([
-                fetch("/api/admin/submissions").then((r) => r.json()),
-                fetch("/api/admin/dashboard/stats").then((r) => r.json()),
-            ]);
-            if (subRes && subRes.success) setSubmissions(subRes.data);
-            if (analyticsRes && analyticsRes.success) setAnalytics(analyticsRes.data);
+            await mutateSubmissions();
+            await mutateAnalytics();
         } catch (e) {
             console.error("Failed to refresh data:", e);
         }

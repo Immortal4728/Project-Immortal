@@ -155,57 +155,50 @@ function StatusBadge({ status }: { status: string }) {
     const s = status?.toLowerCase() || "pending";
     const config = {
         pending: {
-            bg: "bg-amber-500/10",
-            border: "border-amber-500/20",
-            text: "text-amber-400",
+            bg: "bg-zinc-800",
+            text: "text-zinc-300",
             icon: <Clock className="w-3.5 h-3.5" />,
             label: "Pending",
         },
         submitted: {
             bg: "bg-blue-500/10",
-            border: "border-blue-500/20",
-            text: "text-blue-400",
+            text: "text-blue-500",
             icon: <FileText className="w-3.5 h-3.5" />,
             label: "Submitted",
         },
         approved: {
             bg: "bg-emerald-500/10",
-            border: "border-emerald-500/20",
-            text: "text-emerald-400",
+            text: "text-emerald-500",
             icon: <CheckCircle className="w-3.5 h-3.5" />,
             label: "Approved",
         },
         rejected: {
             bg: "bg-rose-500/10",
-            border: "border-rose-500/20",
-            text: "text-rose-400",
+            text: "text-rose-500",
             icon: <XCircle className="w-3.5 h-3.5" />,
             label: "Rejected",
         },
         development: {
-            bg: "bg-violet-500/10",
-            border: "border-violet-500/20",
-            text: "text-violet-400",
+            bg: "bg-indigo-500/10",
+            text: "text-indigo-500",
             icon: <Code2 className="w-3.5 h-3.5" />,
             label: "In Development",
         },
         completed: {
             bg: "bg-emerald-500/10",
-            border: "border-emerald-500/20",
-            text: "text-emerald-400",
+            text: "text-emerald-500",
             icon: <CheckCircle className="w-3.5 h-3.5" />,
             label: "Completed",
         },
     }[s] || {
-        bg: "bg-zinc-500/10",
-        border: "border-zinc-500/20",
+        bg: "bg-zinc-800",
         text: "text-zinc-400",
         icon: <Clock className="w-3.5 h-3.5" />,
         label: status,
     };
 
     return (
-        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full ${config.bg} border ${config.border} ${config.text} text-xs font-semibold tracking-wide`}>
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md ${config.bg} ${config.text} text-xs font-medium`}>
             {config.icon}
             {config.label}
         </span>
@@ -216,8 +209,6 @@ function StatusBadge({ status }: { status: string }) {
 function SectionCard({
     title,
     icon: Icon,
-    iconColor = "text-zinc-400",
-    iconBg = "bg-zinc-800/70",
     children,
     className = "",
 }: {
@@ -229,20 +220,12 @@ function SectionCard({
     className?: string;
 }) {
     return (
-        <div className={`group relative bg-zinc-900/60 backdrop-blur-md border border-white/[0.06] rounded-2xl p-6 transition-all duration-500 hover:border-white/[0.12] hover:shadow-[0_8px_40px_rgb(0,0,0,0.4)] overflow-hidden font-[family-name:var(--font-body)] ${className}`}>
-            {/* Subtle gradient glow on hover */}
-            <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none bg-gradient-to-br from-white/[0.02] via-transparent to-transparent" />
-            <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-5">
-                    <div className={`p-2.5 rounded-xl ${iconBg} border border-white/[0.04] ${iconColor}`}>
-                        <Icon className="w-4 h-4" />
-                    </div>
-                    <h2 className="text-[11px] font-semibold text-zinc-500 tracking-[0.15em] uppercase">
-                        {title}
-                    </h2>
-                </div>
-                {children}
+        <div className={`bg-[#111111] border border-white/5 rounded-xl p-6 ${className}`}>
+            <div className="flex items-center gap-2 mb-6">
+                <Icon className="w-5 h-5 text-zinc-400" />
+                <h2 className="text-base font-semibold text-zinc-100">{title}</h2>
             </div>
+            {children}
         </div>
     );
 }
@@ -251,10 +234,10 @@ function SectionCard({
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
     return (
         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 py-3 border-b border-white/[0.04] last:border-0">
-            <span className="text-xs font-semibold text-zinc-500 tracking-wider uppercase min-w-[140px] shrink-0">
+            <span className="text-sm font-medium text-zinc-400 min-w-[140px] shrink-0">
                 {label}
             </span>
-            <span className="text-sm text-white">{value || <span className="text-zinc-600">—</span>}</span>
+            <span className="text-sm text-zinc-100">{value || <span className="text-zinc-600">—</span>}</span>
         </div>
     );
 }
@@ -282,10 +265,10 @@ function ProgressTracker({ status }: { status: string }) {
             {/* Desktop Progress */}
             <div className="hidden md:flex items-center justify-between relative">
                 {/* Background line */}
-                <div className="absolute top-5 left-[calc(8.33%)] right-[calc(8.33%)] h-[2px] bg-zinc-800 rounded-full" />
+                <div className="absolute top-4 left-[calc(8.33%)] right-[calc(8.33%)] h-[2px] bg-white/5 rounded-full" />
                 {/* Active line */}
                 <div
-                    className="absolute top-5 left-[calc(8.33%)] h-[2px] bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full transition-all duration-700 ease-out"
+                    className="absolute top-4 left-[calc(8.33%)] h-[2px] bg-emerald-500 rounded-full"
                     style={{
                         width: `${(currentIndex / (STAGES.length - 1)) * (100 - 16.66)}%`,
                     }}
@@ -294,48 +277,40 @@ function ProgressTracker({ status }: { status: string }) {
                 {STAGES.map((stage, i) => {
                     const isCompleted = i < currentIndex;
                     const isCurrent = i === currentIndex;
-                    const isFuture = i > currentIndex;
 
                     return (
                         <div key={stage.key} className="flex flex-col items-center relative z-10" style={{ flex: 1 }}>
                             <div
-                                className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${isCompleted
-                                    ? "bg-indigo-500/20 border-indigo-500 text-indigo-400"
+                                className={`w-8 h-8 rounded-full flex items-center justify-center border-[2px] ${isCompleted
+                                    ? "bg-emerald-500/10 border-emerald-500 text-emerald-500"
                                     : isCurrent
-                                        ? "bg-violet-500/20 border-violet-500 text-violet-300 shadow-[0_0_20px_rgba(139,92,246,0.3)] scale-110"
-                                        : "bg-zinc-900 border-zinc-700 text-zinc-600"
+                                        ? "bg-[#111111] border-white text-white"
+                                        : "bg-[#111111] border-white/10 text-zinc-500"
                                     }`}
                             >
                                 {isCompleted ? (
                                     <CheckCircle className="w-4 h-4" />
                                 ) : isCurrent ? (
-                                    <Sparkles className="w-4 h-4 animate-pulse" />
+                                    <span className="w-2.5 h-2.5 rounded-full bg-white" />
                                 ) : (
-                                    <span className="text-[10px] font-bold">{i + 1}</span>
+                                    <span className="text-xs font-semibold">{i + 1}</span>
                                 )}
                             </div>
                             <span
-                                className={`mt-3 text-[10px] font-semibold tracking-wider uppercase transition-colors duration-300 ${isCompleted
-                                    ? "text-indigo-400"
-                                    : isCurrent
-                                        ? "text-violet-300"
-                                        : "text-zinc-600"
+                                className={`mt-3 text-sm font-medium ${isCompleted || isCurrent
+                                    ? "text-zinc-100"
+                                    : "text-zinc-500"
                                     }`}
                             >
                                 {stage.label}
                             </span>
-                            {isCurrent && (
-                                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2">
-                                    <ChevronRight className="w-3 h-3 text-violet-400 rotate-90 animate-bounce" />
-                                </div>
-                            )}
                         </div>
                     );
                 })}
             </div>
 
             {/* Mobile Progress */}
-            <div className="md:hidden space-y-2">
+            <div className="md:hidden space-y-3">
                 {STAGES.map((stage, i) => {
                     const isCompleted = i < currentIndex;
                     const isCurrent = i === currentIndex;
@@ -343,32 +318,27 @@ function ProgressTracker({ status }: { status: string }) {
                     return (
                         <div key={stage.key} className="flex items-center gap-3">
                             <div
-                                className={`w-7 h-7 rounded-full flex items-center justify-center border-2 shrink-0 transition-all ${isCompleted
-                                    ? "bg-indigo-500/20 border-indigo-500 text-indigo-400"
+                                className={`w-6 h-6 rounded-full flex items-center justify-center border-2 shrink-0 ${isCompleted
+                                    ? "bg-emerald-500/10 border-emerald-500 text-emerald-500"
                                     : isCurrent
-                                        ? "bg-violet-500/20 border-violet-500 text-violet-300 shadow-[0_0_12px_rgba(139,92,246,0.3)]"
-                                        : "bg-zinc-900 border-zinc-700 text-zinc-600"
+                                        ? "bg-transparent border-white text-white"
+                                        : "bg-transparent border-white/10 text-zinc-500"
                                     }`}
                             >
                                 {isCompleted ? (
                                     <CheckCircle className="w-3 h-3" />
                                 ) : isCurrent ? (
-                                    <Sparkles className="w-3 h-3" />
+                                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
                                 ) : (
-                                    <span className="text-[9px] font-bold">{i + 1}</span>
+                                    <span className="text-[10px] font-semibold">{i + 1}</span>
                                 )}
                             </div>
                             <span
-                                className={`text-xs font-semibold tracking-wide ${isCompleted ? "text-indigo-400" : isCurrent ? "text-violet-300" : "text-zinc-600"
+                                className={`text-sm font-medium ${isCompleted || isCurrent ? "text-zinc-100" : "text-zinc-500"
                                     }`}
                             >
                                 {stage.label}
                             </span>
-                            {isCurrent && (
-                                <span className="text-[9px] px-2 py-0.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-400 font-semibold">
-                                    Current
-                                </span>
-                            )}
                         </div>
                     );
                 })}
@@ -523,20 +493,12 @@ export default function StudentDashboardPage() {
     /* ─── Loading ─── */
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-                <div className="flex flex-col items-center gap-5">
-                    <div className="relative">
-                        <div className="w-10 h-10 rounded-full border-2 border-zinc-800 border-t-indigo-500 animate-spin" />
-                        <div className="absolute inset-0 rounded-full border-2 border-transparent border-b-violet-500/30 animate-spin" style={{ animationDirection: "reverse", animationDuration: "1.5s" }} />
-                    </div>
-                    <div className="text-center space-y-1">
-                        <p className="text-zinc-400 font-medium tracking-wide text-sm font-[family-name:var(--font-body)]">
-                            Loading your project...
-                        </p>
-                        <p className="text-zinc-600 text-xs font-[family-name:var(--font-body)]">
-                            Setting up your control center
-                        </p>
-                    </div>
+            <div className="min-h-screen bg-[#050505] flex items-center justify-center font-[family-name:var(--font-body)]">
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="w-8 h-8 text-zinc-500 animate-spin" />
+                    <p className="text-zinc-500 font-medium text-sm">
+                        Loading your dashboard...
+                    </p>
                 </div>
             </div>
         );
@@ -545,17 +507,17 @@ export default function StudentDashboardPage() {
     /* ─── Error ─── */
     if (error) {
         return (
-            <div className="min-h-screen bg-[#050505] flex items-center justify-center p-6">
-                <div className="max-w-md w-full bg-zinc-900/70 border border-white/[0.06] rounded-2xl p-8 text-center space-y-4">
-                    <div className="p-3 bg-rose-500/10 rounded-xl inline-block">
+            <div className="min-h-screen bg-[#050505] flex items-center justify-center p-6 font-[family-name:var(--font-body)]">
+                <div className="max-w-md w-full bg-[#111111] border border-white/5 rounded-xl p-8 text-center space-y-4">
+                    <div className="p-3 bg-rose-500/10 rounded-full inline-flex">
                         <XCircle className="w-6 h-6 text-rose-500" />
                     </div>
-                    <p className="text-rose-400 font-semibold text-sm">{error}</p>
+                    <p className="text-zinc-200 font-medium text-sm">{error}</p>
                     <button
                         onClick={() => router.push("/student/login")}
-                        className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1 mx-auto"
+                        className="text-xs text-zinc-400 hover:text-white transition-colors flex items-center justify-center gap-2 mx-auto mt-4"
                     >
-                        <ArrowLeft className="w-3 h-3" />
+                        <ArrowLeft className="w-4 h-4" />
                         Back to Login
                     </button>
                 </div>
@@ -567,55 +529,41 @@ export default function StudentDashboardPage() {
 
     /* ─── Project Documentation Types ─── */
     const DOCUMENT_TYPES = [
-        { key: "record", type: "Project Record", icon: ClipboardList, colorClass: "text-cyan-400", bgClass: "bg-cyan-500/10" },
-        { key: "ppt", type: "PPT Presentation", icon: Presentation, colorClass: "text-pink-400", bgClass: "bg-pink-500/10" },
-        { key: "viva", type: "Viva Questions", icon: FileText, colorClass: "text-amber-400", bgClass: "bg-amber-500/10" },
-        { key: "notes", type: "Internal Notes", icon: BookOpen, colorClass: "text-emerald-400", bgClass: "bg-emerald-500/10" },
+        { key: "record", type: "Project Record", icon: ClipboardList },
+        { key: "ppt", type: "PPT Presentation", icon: Presentation },
+        { key: "viva", type: "Viva Questions", icon: FileText },
+        { key: "notes", type: "Internal Notes", icon: BookOpen },
     ];
 
     return (
-        <div className="min-h-screen bg-[#050505] text-white font-[family-name:var(--font-heading)]">
-            {/* Ambient background glow */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute -top-[40%] -left-[20%] w-[60%] h-[60%] rounded-full bg-indigo-500/[0.03] blur-[120px]" />
-                <div className="absolute -bottom-[30%] -right-[20%] w-[50%] h-[50%] rounded-full bg-violet-500/[0.03] blur-[120px]" />
-            </div>
-
-            <div className="relative z-10 w-full max-w-6xl mx-auto p-5 md:p-10 lg:p-14 space-y-8">
+        <div className="min-h-screen bg-[#050505] text-white font-[family-name:var(--font-body)]">
+            <div className="w-full max-w-6xl mx-auto p-6 lg:p-10 space-y-6">
 
                 {/* ═══════════════════════════════════════════
                     § 1 — Student Profile Header
                    ═══════════════════════════════════════════ */}
-                <div className="animate-element bg-zinc-900/60 backdrop-blur-md border border-white/[0.06] rounded-2xl p-6 md:p-8 transition-all duration-500 hover:border-white/[0.1]">
+                <div className="bg-[#111111] border border-white/5 rounded-xl p-6 md:p-8">
                     <div className="flex flex-col md:flex-row md:items-center gap-6">
                         {/* Avatar */}
                         <div className="relative shrink-0 group/avatar cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-2xl md:text-3xl font-bold shadow-[0_0_30px_rgba(99,102,241,0.2)] ring-[2px] ring-white/[0.08] ring-offset-[#050505] ring-offset-[4px] group-hover/avatar:ring-indigo-500/50 transition-all duration-300">
+                            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden bg-zinc-800 flex items-center justify-center text-zinc-300 text-2xl md:text-3xl font-bold border border-white/10">
                                 {project?.student_profile_photo ? (
                                     <img
                                         src={project.student_profile_photo}
                                         alt={project.name}
-                                        className="w-full h-full object-cover group-hover/avatar:scale-110 transition-transform duration-500"
+                                        className="w-full h-full object-cover"
                                     />
                                 ) : (
                                     <span>{project?.name?.charAt(0)?.toUpperCase() || "S"}</span>
                                 )}
 
-                                <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-all duration-300 backdrop-blur-[2px]">
+                                <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity">
                                     {uploading ? (
                                         <Loader2 className="w-5 h-5 text-white animate-spin" />
                                     ) : (
-                                        <>
-                                            <Camera className="w-5 h-5 text-white mb-0.5" />
-                                            <span className="text-[8px] font-bold tracking-widest text-white/80 uppercase">
-                                                Update
-                                            </span>
-                                        </>
+                                        <span className="text-xs font-medium text-white">Update</span>
                                     )}
                                 </div>
-                            </div>
-                            <div className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-emerald-500 border-[3px] border-[#050505] flex items-center justify-center shadow-[0_0_12px_rgba(16,185,129,0.5)]">
-                                <span className="w-2 h-2 rounded-full bg-white" />
                             </div>
                         </div>
                         <input
@@ -627,20 +575,17 @@ export default function StudentDashboardPage() {
                         />
 
                         {/* Identity Info */}
-                        <div className="flex-1 min-w-0 space-y-2">
-                            <div>
-                                <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white">
-                                    {project?.name || "Student"}
-                                </h1>
-                                <p className="text-zinc-400 text-sm font-[family-name:var(--font-body)] mt-1 flex items-center gap-2">
-                                    <FolderKanban className="w-3.5 h-3.5 text-indigo-400" />
-                                    <span className="text-zinc-300 font-medium">{project?.project_title || "—"}</span>
-                                </p>
-                            </div>
-                            <div className="flex flex-wrap items-center gap-2 mt-2">
+                        <div className="flex-1 min-w-0 space-y-1">
+                            <h1 className="text-xl md:text-2xl font-semibold text-zinc-100">
+                                {project?.name || "Student"}
+                            </h1>
+                            <p className="text-zinc-400 text-sm flex items-center gap-2">
+                                <FolderKanban className="w-4 h-4 text-zinc-500" />
+                                <span>{project?.project_title || "—"}</span>
+                            </p>
+                            <div className="flex flex-wrap items-center gap-2 mt-3 text-sm">
                                 {project?.domain && (
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[11px] font-semibold tracking-wide">
-                                        <Layers className="w-3 h-3" />
+                                    <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-zinc-300 text-xs font-medium">
                                         {project.domain}
                                     </span>
                                 )}
@@ -652,9 +597,9 @@ export default function StudentDashboardPage() {
                         <div className="flex items-center gap-3 shrink-0 self-start md:self-center">
                             <button
                                 onClick={() => setShowLogout(true)}
-                                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-800/70 border border-white/[0.06] text-zinc-400 hover:text-white hover:border-white/[0.12] hover:bg-zinc-800 transition-all text-xs font-semibold tracking-wide font-[family-name:var(--font-body)]"
+                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm font-medium transition-colors"
                             >
-                                <LogOut className="w-3.5 h-3.5" />
+                                <LogOut className="w-4 h-4" />
                                 Sign Out
                             </button>
                         </div>
@@ -664,12 +609,9 @@ export default function StudentDashboardPage() {
                 {/* ═══════════════════════════════════════════
                     § 2 — Project Progress Tracker
                    ═══════════════════════════════════════════ */}
-                <div className="animate-element animate-delay-100 bg-zinc-900/60 backdrop-blur-md border border-white/[0.06] rounded-2xl p-6 md:p-8">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2.5 rounded-xl bg-violet-500/10 border border-white/[0.04] text-violet-400">
-                            <Sparkles className="w-4 h-4" />
-                        </div>
-                        <h2 className="text-[11px] font-semibold text-zinc-500 tracking-[0.15em] uppercase">
+                <div className="bg-[#111111] border border-white/5 rounded-xl p-6 md:p-8">
+                    <div className="flex items-center gap-2 mb-8">
+                        <h2 className="text-base font-semibold text-zinc-100">
                             Project Progress
                         </h2>
                     </div>
@@ -680,19 +622,17 @@ export default function StudentDashboardPage() {
                 {/* ═══════════════════════════════════════════
                     § 3 & 7 — Project Overview + Meeting (2-col)
                    ═══════════════════════════════════════════ */}
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 animate-element animate-delay-200">
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                     {/* Project Overview — 3 cols */}
                     <SectionCard
                         title="Project Overview"
                         icon={FolderKanban}
-                        iconColor="text-indigo-400"
-                        iconBg="bg-indigo-500/10"
                         className="lg:col-span-3"
                     >
                         <InfoRow label="Project Title" value={project?.project_title} />
                         <InfoRow label="Domain" value={
                             project?.domain ? (
-                                <span className="px-2.5 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold">
+                                <span className="px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-zinc-300 text-xs font-medium">
                                     {project.domain}
                                 </span>
                             ) : null
@@ -700,14 +640,14 @@ export default function StudentDashboardPage() {
                         <InfoRow label="Submitted On" value={formatDate(project?.created_at)} />
                         <InfoRow label="Order ID" value={
                             project?.order_id ? (
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-800 border border-white/[0.06] text-zinc-200 text-xs font-mono font-semibold tracking-wider">
-                                    <Tag className="w-3 h-3 text-zinc-500" />
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-800 border border-white/10 text-zinc-200 text-xs font-mono font-medium">
+                                    <Tag className="w-3.5 h-3.5 text-zinc-500" />
                                     {project.order_id}
                                 </span>
                             ) : null
                         } />
                         <InfoRow label="Description" value={
-                            <p className="text-zinc-300 text-sm leading-relaxed">{project?.description}</p>
+                            <p className="text-zinc-400 text-sm leading-relaxed">{project?.description}</p>
                         } />
                     </SectionCard>
 
@@ -715,38 +655,36 @@ export default function StudentDashboardPage() {
                     <SectionCard
                         title="Meeting"
                         icon={Video}
-                        iconColor="text-sky-400"
-                        iconBg="bg-sky-500/10"
                         className="lg:col-span-2"
                     >
                         {project?.meeting_link || project?.meeting_date ? (
                             <div className="space-y-4">
                                 {/* Mentor */}
-                                <div className="flex items-center gap-3 p-3 rounded-xl bg-zinc-800/40 border border-white/[0.04]">
-                                    <div className="w-9 h-9 rounded-xl bg-sky-500/10 flex items-center justify-center">
-                                        <Users className="w-4 h-4 text-sky-400" />
+                                <div className="flex items-center gap-3 p-4 rounded-xl bg-zinc-800/50 border border-white/5">
+                                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
+                                        <Users className="w-5 h-5 text-zinc-400" />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] text-zinc-500 font-semibold uppercase tracking-wider">Mentor</p>
-                                        <p className="text-sm text-white font-medium">Assigned Mentor</p>
+                                        <p className="text-xs text-zinc-500 font-medium uppercase tracking-wide">Mentor</p>
+                                        <p className="text-sm text-zinc-100 font-medium">Assigned Mentor</p>
                                     </div>
                                 </div>
 
                                 {project.meeting_date && (
-                                    <div className="flex items-center gap-3">
-                                        <Calendar className="w-4 h-4 text-sky-400 shrink-0" />
+                                    <div className="flex items-center gap-3 py-1">
+                                        <Calendar className="w-4 h-4 text-zinc-500 shrink-0" />
                                         <div>
-                                            <p className="text-[10px] text-zinc-500 font-semibold uppercase tracking-wider">Date</p>
-                                            <p className="text-sm text-white">{project.meeting_date}</p>
+                                            <p className="text-xs text-zinc-500 font-medium uppercase tracking-wide">Date</p>
+                                            <p className="text-sm text-zinc-200">{project.meeting_date}</p>
                                         </div>
                                     </div>
                                 )}
                                 {project.meeting_time && (
-                                    <div className="flex items-center gap-3">
-                                        <Timer className="w-4 h-4 text-sky-400 shrink-0" />
+                                    <div className="flex items-center gap-3 py-1">
+                                        <Timer className="w-4 h-4 text-zinc-500 shrink-0" />
                                         <div>
-                                            <p className="text-[10px] text-zinc-500 font-semibold uppercase tracking-wider">Time</p>
-                                            <p className="text-sm text-white">{project.meeting_time}</p>
+                                            <p className="text-xs text-zinc-500 font-medium uppercase tracking-wide">Time</p>
+                                            <p className="text-sm text-zinc-200">{project.meeting_time}</p>
                                         </div>
                                     </div>
                                 )}
@@ -755,7 +693,7 @@ export default function StudentDashboardPage() {
                                         href={project.meeting_link}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 hover:bg-sky-500/20 hover:border-sky-500/30 transition-all text-sm font-semibold"
+                                        className="mt-2 flex items-center justify-center gap-2 w-full px-5 py-2.5 rounded-lg bg-indigo-500 hover:bg-indigo-600 transition-colors text-sm font-medium text-white shadow-sm"
                                     >
                                         <ExternalLink className="w-4 h-4" />
                                         Join Meeting
@@ -774,12 +712,10 @@ export default function StudentDashboardPage() {
                 {/* ═══════════════════════════════════════════
                     § 4 — Project Documentation (Replaced old panels)
                    ═══════════════════════════════════════════ */}
-                <div className="animate-element animate-delay-300">
+                <div className="">
                     <SectionCard
                         title="Project Documentation"
                         icon={BookOpen}
-                        iconColor="text-blue-400"
-                        iconBg="bg-blue-500/10"
                     >
                         {docsLoading ? (
                             <div className="py-8 flex justify-center">
@@ -789,15 +725,15 @@ export default function StudentDashboardPage() {
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse min-w-[600px]">
                                     <thead>
-                                        <tr className="border-b border-white/[0.04]">
-                                            <th className="pb-3 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider font-[family-name:var(--font-body)]">Document Type</th>
-                                            <th className="pb-3 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider font-[family-name:var(--font-body)]">Status</th>
-                                            <th className="pb-3 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider font-[family-name:var(--font-body)]">File Name</th>
-                                            <th className="pb-3 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider font-[family-name:var(--font-body)] text-right">Action</th>
+                                        <tr className="border-b border-white/5">
+                                            <th className="pb-3 text-xs font-medium text-zinc-500">Document Type</th>
+                                            <th className="pb-3 text-xs font-medium text-zinc-500">Status</th>
+                                            <th className="pb-3 text-xs font-medium text-zinc-500">File Name</th>
+                                            <th className="pb-3 text-xs font-medium text-zinc-500 text-right">Action</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-white/[0.04]">
-                                        {DOCUMENT_TYPES.map(({ key, type, icon: Icon, colorClass, bgClass }) => {
+                                    <tbody className="divide-y divide-white/5">
+                                        {DOCUMENT_TYPES.map(({ key, type, icon: Icon }) => {
                                             const doc = projectDocs.find(d => d.document_type === key);
                                             const isAvailable = !!doc;
 
@@ -807,23 +743,23 @@ export default function StudentDashboardPage() {
                                                 : "—";
 
                                             return (
-                                                <tr key={type} className="group hover:bg-white/[0.02] transition-colors">
+                                                <tr key={type} className="group">
                                                     <td className="py-4 pr-4">
                                                         <div className="flex items-center gap-3">
-                                                            <div className={`p-2 rounded-lg ${bgClass} ${colorClass}`}>
+                                                            <div className={`p-2 rounded-lg bg-white/5 text-zinc-400`}>
                                                                 <Icon className="w-4 h-4" />
                                                             </div>
-                                                            <span className="text-sm font-medium text-white">{type}</span>
+                                                            <span className="text-sm font-medium text-zinc-200">{type}</span>
                                                         </div>
                                                     </td>
                                                     <td className="py-4 pr-4">
                                                         {isAvailable ? (
-                                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-semibold">
-                                                                <CheckCircle className="w-3 h-3" />
-                                                                Uploaded ✓
+                                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-500 text-xs font-medium">
+                                                                <CheckCircle className="w-3.5 h-3.5" />
+                                                                Uploaded
                                                             </span>
                                                         ) : (
-                                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-800 border border-white/[0.06] text-zinc-400 text-[11px] font-semibold">
+                                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-800 text-zinc-400 text-xs font-medium">
                                                                 Not Available
                                                             </span>
                                                         )}
@@ -833,14 +769,14 @@ export default function StudentDashboardPage() {
                                                             {displayFileName}
                                                         </span>
                                                     </td>
-                                                    <td className="py-4 font-[family-name:var(--font-body)] text-right">
+                                                    <td className="py-4 text-right">
                                                         <a
                                                             href={isAvailable ? doc.file_url : undefined}
                                                             target={isAvailable ? "_blank" : undefined}
                                                             rel={isAvailable ? "noopener noreferrer" : undefined}
-                                                            className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-semibold overflow-hidden relative transition-all duration-300 ${isAvailable
-                                                                ? "bg-violet-500/10 text-violet-400 hover:bg-violet-500 hover:text-white border border-violet-500/20 hover:border-violet-500 hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] cursor-pointer"
-                                                                : "bg-zinc-800/50 text-zinc-500 border border-white/[0.04] cursor-not-allowed opacity-50"
+                                                            className={`inline-flex items-center px-4 py-2 rounded-lg text-xs font-medium transition-colors ${isAvailable
+                                                                ? "bg-white/10 text-white hover:bg-white/15 cursor-pointer"
+                                                                : "bg-transparent text-zinc-600 cursor-not-allowed"
                                                                 }`}
                                                             onClick={(e) => {
                                                                 if (!isAvailable) e.preventDefault();
@@ -862,37 +798,25 @@ export default function StudentDashboardPage() {
                 {/* ═══════════════════════════════════════════
                     § 6 — Project Deliverables
                    ═══════════════════════════════════════════ */}
-                <div className="animate-element animate-delay-400">
+                <div className="">
                     <SectionCard
                         title="Project Deliverables"
                         icon={Download}
-                        iconColor="text-violet-400"
-                        iconBg="bg-violet-500/10"
                     >
                         {project?.files && project.files.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {project.files.map((file) => {
                                     const ext = file.file_name?.split(".").pop()?.toLowerCase() || "";
                                     let FileIcon = FileText;
-                                    let fColor = "text-violet-400";
-                                    let fBg = "bg-violet-500/10";
 
                                     if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) {
                                         FileIcon = FileArchive;
-                                        fColor = "text-orange-400";
-                                        fBg = "bg-orange-500/10";
                                     } else if (["mp4", "mov", "avi", "mkv", "webm"].includes(ext)) {
                                         FileIcon = PlayCircle;
-                                        fColor = "text-rose-400";
-                                        fBg = "bg-rose-500/10";
                                     } else if (["js", "ts", "py", "java", "cpp", "c", "html", "css"].includes(ext)) {
                                         FileIcon = Code2;
-                                        fColor = "text-emerald-400";
-                                        fBg = "bg-emerald-500/10";
                                     } else if (["pdf"].includes(ext)) {
                                         FileIcon = FileText;
-                                        fColor = "text-red-400";
-                                        fBg = "bg-red-500/10";
                                     }
 
                                     return (
@@ -901,18 +825,18 @@ export default function StudentDashboardPage() {
                                             href={file.file_url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="flex items-center gap-3 p-4 rounded-xl bg-zinc-800/40 border border-white/[0.04] hover:border-violet-500/20 hover:bg-zinc-800/60 transition-all duration-300 group/file"
+                                            className="flex items-center gap-3 p-4 rounded-xl border border-white/5 bg-zinc-800/30 hover:bg-zinc-800/60 transition-colors group/file"
                                         >
-                                            <div className={`p-2.5 rounded-xl ${fBg} ${fColor} group-hover/file:scale-110 transition-transform duration-300`}>
-                                                <FileIcon className="w-4 h-4" />
+                                            <div className={`p-2.5 rounded-lg bg-white/5 text-zinc-400`}>
+                                                <FileIcon className="w-5 h-5" />
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-sm text-white font-medium truncate">{file.file_name}</p>
-                                                <p className="text-[10px] text-zinc-500 mt-0.5">
+                                                <p className="text-sm text-zinc-200 font-medium truncate">{file.file_name}</p>
+                                                <p className="text-xs text-zinc-500 mt-0.5">
                                                     {formatDate(file.uploaded_at)}
                                                 </p>
                                             </div>
-                                            <Download className="w-4 h-4 text-zinc-600 group-hover/file:text-violet-400 transition-colors shrink-0" />
+                                            <Download className="w-4 h-4 text-zinc-600 group-hover/file:text-white transition-colors shrink-0" />
                                         </a>
                                     );
                                 })}
@@ -928,18 +852,18 @@ export default function StudentDashboardPage() {
 
                 {/* ─── Multiple Projects Indicator ─── */}
                 {projects.length > 1 && (
-                    <div className="bg-zinc-900/60 backdrop-blur-md border border-white/[0.06] rounded-2xl p-5 animate-element animate-delay-500">
-                        <p className="text-xs text-zinc-500 font-[family-name:var(--font-body)] flex items-center gap-2">
-                            <Layers className="w-3.5 h-3.5 text-zinc-600" />
-                            You have <span className="text-white font-semibold">{projects.length}</span> project submissions.
+                    <div className="bg-[#111111] border border-white/5 rounded-xl p-5">
+                        <p className="text-sm text-zinc-400 flex items-center gap-2">
+                            <Layers className="w-4 h-4 text-zinc-500" />
+                            You have <span className="text-zinc-100 font-medium">{projects.length}</span> project submissions.
                             Showing the most recent one above.
                         </p>
                     </div>
                 )}
 
                 {/* ─── Footer ─── */}
-                <div className="text-center pt-4 pb-8 border-t border-white/[0.04]">
-                    <p className="text-[11px] text-zinc-600 font-[family-name:var(--font-body)]">
+                <div className="text-center pt-8 pb-10">
+                    <p className="text-xs text-zinc-600 font-medium">
                         Project Immortal © {new Date().getFullYear()} — Student Portal
                     </p>
                 </div>
@@ -960,9 +884,9 @@ export default function StudentDashboardPage() {
                         className="absolute inset-0 bg-black/80 backdrop-blur-md"
                         onClick={() => { setCropModalOpen(false); setCropImage(null); }}
                     />
-                    <div className="relative bg-[#0a0a0a] border border-white/[0.08] rounded-2xl shadow-[0_20px_80px_rgba(0,0,0,0.8)] w-[90vw] max-w-[480px] overflow-hidden">
+                    <div className="relative bg-[#111111] border border-white/5 rounded-xl shadow-2xl w-[90vw] max-w-[480px] overflow-hidden">
                         {/* Header */}
-                        <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06]">
+                        <div className="flex items-center justify-between px-6 py-5 border-b border-white/5">
                             <div>
                                 <h3 className="text-base font-bold text-white tracking-tight">Crop Profile Photo</h3>
                                 <p className="text-xs text-zinc-500 mt-0.5">Drag to reposition, scroll to zoom</p>
@@ -989,14 +913,14 @@ export default function StudentDashboardPage() {
                                 style={{
                                     containerStyle: { background: "#0a0a0a" },
                                     cropAreaStyle: {
-                                        border: "2px solid rgba(139, 92, 246, 0.5)",
+                                        border: "2px solid rgba(255, 255, 255, 0.5)",
                                         boxShadow: "0 0 0 9999px rgba(0,0,0,0.75)",
                                     },
                                 }}
                             />
                         </div>
                         {/* Zoom */}
-                        <div className="px-6 py-4 border-t border-white/[0.06]">
+                        <div className="px-6 py-4 border-t border-white/5">
                             <div className="flex items-center gap-3">
                                 <ZoomOut className="w-4 h-4 text-zinc-500 flex-shrink-0" />
                                 <input
@@ -1006,23 +930,23 @@ export default function StudentDashboardPage() {
                                     step={0.05}
                                     value={zoom}
                                     onChange={(e) => setZoom(Number(e.target.value))}
-                                    className="flex-1 h-1.5 rounded-full appearance-none bg-zinc-800 accent-violet-500 cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-violet-500 [&::-webkit-slider-thumb]:shadow-[0_0_8px_rgba(139,92,246,0.4)] [&::-webkit-slider-thumb]:cursor-pointer"
+                                    className="flex-1 h-1.5 rounded-full appearance-none bg-zinc-800 accent-indigo-500 cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:cursor-pointer"
                                 />
                                 <ZoomIn className="w-4 h-4 text-zinc-500 flex-shrink-0" />
                             </div>
                         </div>
                         {/* Actions */}
-                        <div className="px-6 py-5 border-t border-white/[0.06] flex items-center justify-end gap-3">
+                        <div className="px-6 py-5 border-t border-white/5 flex items-center justify-end gap-3">
                             <button
                                 onClick={() => { setCropModalOpen(false); setCropImage(null); }}
-                                className="px-5 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.06] hover:border-white/[0.12] transition-all"
+                                className="px-5 py-2.5 rounded-lg text-sm font-medium text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleSaveCrop}
                                 disabled={uploading}
-                                className="px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-violet-500/20 hover:shadow-violet-500/30 flex items-center gap-2"
+                                className="px-6 py-2.5 rounded-lg text-sm font-medium text-zinc-900 bg-white hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
                             >
                                 {uploading ? (
                                     <><Loader2 className="w-4 h-4 animate-spin" />Saving...</>
