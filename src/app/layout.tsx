@@ -16,8 +16,25 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Project Immortal",
-  description: "Engineering Ideas Into Real Software.",
+  title: "Project Immortal | Engineering Ideas Into Real Software",
+  description: "Have a final-year project idea or need production-grade help? Concept → Architecture → Working System. We build real software systems with modern tech stacks.",
+  keywords: ["Software Development", "Final Year Projects", "Web Development", "App Development", "Project Immortal", "Engineering Projects", "React", "Next.js"],
+  openGraph: {
+    title: "Project Immortal",
+    description: "Engineering Ideas Into Real Software.",
+    url: "https://project-immortal.vercel.app",
+    siteName: "Project Immortal",
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Project Immortal",
+    description: "Engineering Ideas Into Real Software.",
+  },
+  verification: {
+    google: "oWySz4N_EjiGkuDDDqcxlS0fEDQfrmK1Mpv2lViyUGA",
+  },
 };
 
 export default function RootLayout({
