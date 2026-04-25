@@ -1,4 +1,4 @@
-import { insforge } from "@/lib/insforge";
+import { query } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
 /* ─── In-memory cache for page 1 (15s TTL) ─── */
@@ -29,23 +29,15 @@ export async function GET(request: NextRequest) {
         // Secondary sort by id DESC prevents duplicate/missing rows when
         // multiple records share the same created_at timestamp.
         const dbStart = Date.now();
-        const { data, error } = await insforge.database
-            .from("project_requests")
-            .select("id, name, email, phone, domain, project_title, status, created_at")
-            .order("created_at", { ascending: false })
-            .order("id", { ascending: false })
-            .range(offset, offset + limit); // Fetches limit + 1 items for hasMore check
+        const { rows } = await query(`
+            SELECT id, name, email, phone, domain, project_title, status, created_at
+            FROM project_requests
+            ORDER BY created_at DESC, id DESC
+            LIMIT $1 OFFSET $2
+        `, [limit + 1, offset]);
         const dbTime = Date.now() - dbStart;
 
-        if (error) {
-            console.error("[Submissions API] DB error:", error);
-            return NextResponse.json(
-                { success: false, error: "Failed to fetch submissions" },
-                { status: 500 }
-            );
-        }
-
-        const items = data || [];
+        const items = rows || [];
         const hasMore = items.length > limit;
 
         // Trim the extra row used for the hasMore check

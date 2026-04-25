@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { insforge } from "@/lib/insforge";
+import { query } from "@/lib/db";
 
 export async function POST(req: Request) {
     try {
@@ -15,16 +15,14 @@ export async function POST(req: Request) {
 
         const normalizedStatus = status.toLowerCase();
 
-        const { data, error } = await insforge.database
-            .from("project_requests")
-            .update({ status: normalizedStatus })
-            .eq("id", id)
-            .select();
+        const updateResult = await query(
+            "UPDATE project_requests SET status = $1 WHERE id = $2 RETURNING *",
+            [normalizedStatus, id]
+        );
 
-        if (error) {
-            console.error("Submission update error:", error);
+        if (updateResult.rowCount === 0) {
             return NextResponse.json(
-                { success: false, error: "Update failed" },
+                { success: false, error: "Submission not found or update failed" },
                 { status: 500 }
             );
         }

@@ -1,5 +1,5 @@
 const INSFORGE_URL = process.env.NEXT_PUBLIC_INSFORGE_URL!;
-const INSFORGE_KEY = process.env.NEXT_PUBLIC_INSFORGE_ANON_KEY!;
+const INSFORGE_KEY = process.env.INSFORGE_API_KEY || process.env.NEXT_PUBLIC_INSFORGE_ANON_KEY!;
 
 interface QueryResult {
     rows: any[];

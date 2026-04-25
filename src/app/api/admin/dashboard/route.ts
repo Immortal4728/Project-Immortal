@@ -29,12 +29,12 @@ export async function GET() {
         `);
 
         // ── 2. Recent 20 submissions (deterministic order) ──
-        const recentSubmissionsQuery = insforge.database
-            .from("project_requests")
-            .select("id, name, email, phone, domain, project_title, status, created_at")
-            .order("created_at", { ascending: false })
-            .order("id", { ascending: false })
-            .limit(20);
+        const recentSubmissionsQuery = query(`
+            SELECT id, name, email, phone, domain, project_title, status, created_at
+            FROM project_requests
+            ORDER BY created_at DESC, id DESC
+            LIMIT 20
+        `);
 
         // ── 3. Domain distribution (aggregated in DB) ──
         const domainQuery = query(`
@@ -63,9 +63,7 @@ export async function GET() {
         ]);
         const dbTime = Date.now() - t1;
 
-        if (recentRes.error) {
-            throw recentRes.error;
-        }
+
 
         const stats = statsResult.rows[0] || { total: 0, pending: 0, approved: 0, rejected: 0 };
 
@@ -83,7 +81,7 @@ export async function GET() {
                 approved: stats.approved || 0,
                 rejected: stats.rejected || 0
             },
-            recentSubmissions: recentRes.data || [],
+            recentSubmissions: recentRes.rows || [],
             domainDistribution: domainResult.rows || [],
             statusDistribution: statusData,
             timelineData: timelineResult.rows || []
@@ -94,7 +92,7 @@ export async function GET() {
         lastFetchTime = Date.now();
 
         const totalTime = Date.now() - startTime;
-        console.log(`[Dashboard API] recent=${(recentRes.data || []).length} dbMs=${dbTime} totalMs=${totalTime}`);
+        console.log(`[Dashboard API] recent=${(recentRes.rows || []).length} dbMs=${dbTime} totalMs=${totalTime}`);
 
         return NextResponse.json({ success: true, data });
     } catch (error: any) {
