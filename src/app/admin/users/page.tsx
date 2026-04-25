@@ -223,7 +223,7 @@ export default function UsersPage() {
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl shadow-lg hover:shadow-emerald-500/20 transition-all duration-200 text-sm font-semibold tracking-wide"
+            className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 md:py-2.5 rounded-xl shadow-lg hover:shadow-emerald-500/20 transition-all duration-200 text-sm font-semibold tracking-wide w-full md:w-auto"
           >
             <UserPlus className="w-4 h-4" />
             Invite User
@@ -256,169 +256,160 @@ export default function UsersPage() {
               <p className="text-zinc-600 text-sm">Loading team members...</p>
             </div>
           ) : filteredEmployees.length > 0 ? (
-            <div className="overflow-x-auto w-full">
-              <table className="w-full text-left text-sm whitespace-nowrap">
-                <thead>
-                  <tr className="border-b border-white/[0.04]">
-                    <th className="px-6 py-3.5 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em]">
-                      Member
-                    </th>
-                    <th className="px-6 py-3.5 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em]">
-                      Role
-                    </th>
-                    <th className="px-6 py-3.5 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em]">
-                      Status
-                    </th>
-                    <th className="px-6 py-3.5 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] text-right">
-                      Joined
-                    </th>
-                    <th className="px-6 py-3.5 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] text-right">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredEmployees.map((emp, idx) => (
-                    <tr
-                      key={emp.id}
-                      className="group border-b border-white/[0.03] last:border-0 hover:bg-white/[0.02] transition-colors duration-150"
-                    >
-                      {/* Member cell: avatar + name + email */}
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3.5">
-                          <div className="w-9 h-9 rounded-full overflow-hidden bg-zinc-800 flex items-center justify-center flex-shrink-0 ring-1 ring-white/[0.06]">
-                            {emp.profile_picture ? (
-                              <img
-                                src={emp.profile_picture}
-                                alt={emp.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <span className="text-xs font-bold text-zinc-500 select-none">
-                                {getInitials(emp.name)}
-                              </span>
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-semibold text-white text-sm truncate">
-                              {emp.name}
-                            </p>
-                            <p className="text-zinc-500 text-xs truncate">
-                              {emp.email}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Role */}
-                      <td className="px-6 py-4">
-                        <span
-                          className={`px-2.5 py-1 rounded-lg border text-[11px] font-semibold capitalize ${roleBadgeClasses(emp.role)}`}
-                        >
-                          {emp.role}
-                        </span>
-                      </td>
-
-                      {/* Status */}
-                      <td className="px-6 py-4">
-                        {emp.active || emp.active === undefined ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-semibold bg-emerald-500/10 border-emerald-500/20 text-emerald-400">
-                            <span className="relative flex h-1.5 w-1.5">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
-                            </span>
-                            Active
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-semibold bg-rose-500/10 border-rose-500/20 text-rose-400">
-                            <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-                            Deactivated
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Joined */}
-                      <td className="px-6 py-4 text-right text-zinc-500 text-xs">
-                        {formatDate(emp.created_at)}
-                      </td>
-
-                      {/* Actions Dropdown */}
-                      <td className="px-6 py-4 text-right">
-                        <div className="relative inline-block text-left" ref={openDropdown === emp.id ? dropdownRef : null}>
-                          <button
-                            onClick={() =>
-                              setOpenDropdown(
-                                openDropdown === emp.id ? null : emp.id,
-                              )
-                            }
-                            className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/[0.06] transition-colors"
-                          >
-                            <MoreVertical className="w-4 h-4" />
-                          </button>
-                          {openDropdown === emp.id && (
-                            <div className="absolute right-0 top-full mt-1.5 w-48 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.5)] bg-[#141414] border border-white/[0.08] z-50 py-1.5 overflow-hidden">
-                              {/* View Profile */}
-                              <button
-                                onClick={() => {
-                                  setProfileEmployee(emp);
-                                  setOpenDropdown(null);
-                                }}
-                                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-zinc-300 hover:bg-white/[0.04] hover:text-white w-full text-left transition-colors"
-                              >
-                                <Eye className="w-4 h-4 text-zinc-500" />
-                                View Profile
-                              </button>
-
-                              <div className="h-px bg-white/[0.04] mx-3 my-1" />
-
-                              {/* Toggle Active */}
-                              {emp.active || emp.active === undefined ? (
-                                <button
-                                  onClick={() => {
-                                    setActionId(emp.id);
-                                    setActionType("deactivate");
-                                    setOpenDropdown(null);
-                                  }}
-                                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-amber-400 hover:bg-amber-500/[0.06] w-full text-left transition-colors"
-                                >
-                                  <PowerOff className="w-4 h-4" />
-                                  Deactivate
-                                </button>
-                              ) : (
-                                <button
-                                  onClick={() => {
-                                    setActionId(emp.id);
-                                    setActionType("activate");
-                                    setOpenDropdown(null);
-                                  }}
-                                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-400 hover:bg-emerald-500/[0.06] w-full text-left transition-colors"
-                                >
-                                  <Power className="w-4 h-4" />
-                                  Activate
-                                </button>
-                              )}
-
-                              {/* Delete */}
-                              <button
-                                onClick={() => {
-                                  setActionId(emp.id);
-                                  setActionType("delete");
-                                  setOpenDropdown(null);
-                                }}
-                                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-rose-400 hover:bg-rose-500/[0.06] w-full text-left transition-colors"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                                Remove User
-                              </button>
-                            </div>
+            <>
+              {/* ─── Mobile Card Layout (below md) ─── */}
+              <div className="md:hidden divide-y divide-white/[0.04]">
+                {filteredEmployees.map((emp) => (
+                  <div key={emp.id} className="p-4 space-y-3">
+                    {/* Top: Avatar + Name + Actions */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-800 flex items-center justify-center flex-shrink-0 ring-1 ring-white/[0.06]">
+                          {emp.profile_picture ? (
+                            <img src={emp.profile_picture} alt={emp.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-xs font-bold text-zinc-500 select-none">{getInitials(emp.name)}</span>
                           )}
                         </div>
-                      </td>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-white text-sm truncate">{emp.name}</p>
+                          <p className="text-zinc-500 text-xs truncate">{emp.email}</p>
+                        </div>
+                      </div>
+                      <div className="relative inline-block text-left shrink-0" ref={openDropdown === emp.id ? dropdownRef : null}>
+                        <button
+                          onClick={() => setOpenDropdown(openDropdown === emp.id ? null : emp.id)}
+                          className="w-9 h-9 rounded-lg flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/[0.06] transition-colors"
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                        </button>
+                        {openDropdown === emp.id && (
+                          <div className="absolute right-0 top-full mt-1.5 w-48 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.5)] bg-[#141414] border border-white/[0.08] z-50 py-1.5 overflow-hidden">
+                            <button onClick={() => { setProfileEmployee(emp); setOpenDropdown(null); }} className="flex items-center gap-2.5 px-4 py-3 text-sm text-zinc-300 hover:bg-white/[0.04] hover:text-white w-full text-left transition-colors">
+                              <Eye className="w-4 h-4 text-zinc-500" /> View Profile
+                            </button>
+                            <div className="h-px bg-white/[0.04] mx-3 my-1" />
+                            {emp.active || emp.active === undefined ? (
+                              <button onClick={() => { setActionId(emp.id); setActionType("deactivate"); setOpenDropdown(null); }} className="flex items-center gap-2.5 px-4 py-3 text-sm text-amber-400 hover:bg-amber-500/[0.06] w-full text-left transition-colors">
+                                <PowerOff className="w-4 h-4" /> Deactivate
+                              </button>
+                            ) : (
+                              <button onClick={() => { setActionId(emp.id); setActionType("activate"); setOpenDropdown(null); }} className="flex items-center gap-2.5 px-4 py-3 text-sm text-emerald-400 hover:bg-emerald-500/[0.06] w-full text-left transition-colors">
+                                <Power className="w-4 h-4" /> Activate
+                              </button>
+                            )}
+                            <button onClick={() => { setActionId(emp.id); setActionType("delete"); setOpenDropdown(null); }} className="flex items-center gap-2.5 px-4 py-3 text-sm text-rose-400 hover:bg-rose-500/[0.06] w-full text-left transition-colors">
+                              <Trash2 className="w-4 h-4" /> Remove User
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    {/* Bottom: Role + Status + Date */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`px-2.5 py-1 rounded-lg border text-[11px] font-semibold capitalize ${roleBadgeClasses(emp.role)}`}>
+                        {emp.role}
+                      </span>
+                      {emp.active || emp.active === undefined ? (
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg border text-[10px] font-semibold bg-emerald-500/10 border-emerald-500/20 text-emerald-400">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Active
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg border text-[10px] font-semibold bg-rose-500/10 border-rose-500/20 text-rose-400">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-400" /> Deactivated
+                        </span>
+                      )}
+                      <span className="text-zinc-600 text-[11px] ml-auto">{formatDate(emp.created_at)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* ─── Desktop Table (md and above) ─── */}
+              <div className="hidden md:block overflow-x-auto w-full">
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                  <thead>
+                    <tr className="border-b border-white/[0.04]">
+                      <th className="px-6 py-3.5 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em]">Member</th>
+                      <th className="px-6 py-3.5 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em]">Role</th>
+                      <th className="px-6 py-3.5 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em]">Status</th>
+                      <th className="px-6 py-3.5 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] text-right">Joined</th>
+                      <th className="px-6 py-3.5 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] text-right">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {filteredEmployees.map((emp) => (
+                      <tr key={emp.id} className="group border-b border-white/[0.03] last:border-0 hover:bg-white/[0.02] transition-colors duration-150">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3.5">
+                            <div className="w-9 h-9 rounded-full overflow-hidden bg-zinc-800 flex items-center justify-center flex-shrink-0 ring-1 ring-white/[0.06]">
+                              {emp.profile_picture ? (
+                                <img src={emp.profile_picture} alt={emp.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="text-xs font-bold text-zinc-500 select-none">{getInitials(emp.name)}</span>
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-semibold text-white text-sm truncate">{emp.name}</p>
+                              <p className="text-zinc-500 text-xs truncate">{emp.email}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`px-2.5 py-1 rounded-lg border text-[11px] font-semibold capitalize ${roleBadgeClasses(emp.role)}`}>{emp.role}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          {emp.active || emp.active === undefined ? (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-semibold bg-emerald-500/10 border-emerald-500/20 text-emerald-400">
+                              <span className="relative flex h-1.5 w-1.5">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+                              </span>
+                              Active
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-semibold bg-rose-500/10 border-rose-500/20 text-rose-400">
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose-400" /> Deactivated
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-right text-zinc-500 text-xs">{formatDate(emp.created_at)}</td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="relative inline-block text-left" ref={openDropdown === emp.id ? dropdownRef : null}>
+                            <button
+                              onClick={() => setOpenDropdown(openDropdown === emp.id ? null : emp.id)}
+                              className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/[0.06] transition-colors"
+                            >
+                              <MoreVertical className="w-4 h-4" />
+                            </button>
+                            {openDropdown === emp.id && (
+                              <div className="absolute right-0 top-full mt-1.5 w-48 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.5)] bg-[#141414] border border-white/[0.08] z-50 py-1.5 overflow-hidden">
+                                <button onClick={() => { setProfileEmployee(emp); setOpenDropdown(null); }} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-zinc-300 hover:bg-white/[0.04] hover:text-white w-full text-left transition-colors">
+                                  <Eye className="w-4 h-4 text-zinc-500" /> View Profile
+                                </button>
+                                <div className="h-px bg-white/[0.04] mx-3 my-1" />
+                                {emp.active || emp.active === undefined ? (
+                                  <button onClick={() => { setActionId(emp.id); setActionType("deactivate"); setOpenDropdown(null); }} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-amber-400 hover:bg-amber-500/[0.06] w-full text-left transition-colors">
+                                    <PowerOff className="w-4 h-4" /> Deactivate
+                                  </button>
+                                ) : (
+                                  <button onClick={() => { setActionId(emp.id); setActionType("activate"); setOpenDropdown(null); }} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-400 hover:bg-emerald-500/[0.06] w-full text-left transition-colors">
+                                    <Power className="w-4 h-4" /> Activate
+                                  </button>
+                                )}
+                                <button onClick={() => { setActionId(emp.id); setActionType("delete"); setOpenDropdown(null); }} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-rose-400 hover:bg-rose-500/[0.06] w-full text-left transition-colors">
+                                  <Trash2 className="w-4 h-4" /> Remove User
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center space-y-4 py-16">
               <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">

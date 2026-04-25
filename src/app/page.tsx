@@ -35,7 +35,10 @@ export default function Home() {
       </div>
 
       {/* 5. TESTIMONIALS */}
-      <Testimonials />
+      {/* Hidden on mobile */}
+      <div className="hidden md:block">
+        <Testimonials />
+      </div>
 
       {/* 8. CONTACT SECTION */}
       <section id="contact" className="relative w-full py-32 px-6 md:px-12 lg:px-16 bg-black font-[family-name:var(--font-heading)] border-t border-white/5">
@@ -166,8 +169,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 9. FINAL CTA */}
-      <section className="py-32 text-center bg-black font-[family-name:var(--font-heading)] border-t border-white/5">
+      {/* 9. FINAL CTA (Hero Section) */}
+      {/* Hidden on mobile */}
+      <section className="hidden md:block py-32 text-center bg-black font-[family-name:var(--font-heading)] border-t border-white/5">
         <div className="max-w-7xl mx-auto px-6">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}

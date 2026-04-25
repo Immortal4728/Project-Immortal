@@ -129,7 +129,45 @@ export default function CustomersPage() {
                     </div>
                 ) : filteredCustomers.length > 0 ? (
                     <div className="overflow-x-auto w-full border-t border-white/5 pb-16">
-                        <table className="w-full text-left text-sm whitespace-nowrap">
+                        {/* ─── Mobile Card Layout (below md) ─── */}
+                        <div className="md:hidden divide-y divide-white/5">
+                            {filteredCustomers.map((c: Customer) => (
+                                <div key={c.id} className="p-4 space-y-3">
+                                    {/* Name + Status */}
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <p className="font-medium text-white text-sm truncate">{c.name}</p>
+                                            <p className="text-zinc-400 text-xs truncate mt-0.5">{c.email}</p>
+                                        </div>
+                                        {c.account_active ? (
+                                            <span className="px-2.5 py-1 rounded-lg border bg-emerald-500/10 border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase shrink-0">Active</span>
+                                        ) : (
+                                            <span className="px-2.5 py-1 rounded-lg border bg-rose-500/10 border-rose-500/20 text-rose-400 text-xs font-semibold uppercase shrink-0">Deactivated</span>
+                                        )}
+                                    </div>
+                                    {/* Dates */}
+                                    <div className="flex items-center gap-4 text-[11px] text-zinc-500">
+                                        <span>Last login: {c.last_login ? new Date(c.last_login).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Never"}</span>
+                                        <span>Joined: {new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                                    </div>
+                                    {/* Actions */}
+                                    <div className="flex items-center gap-2 pt-2 border-t border-white/[0.04]">
+                                        <button onClick={() => router.push(`/admin/submissions/${c.id}`)} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium text-zinc-300 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
+                                            <Eye className="w-3.5 h-3.5" /> View
+                                        </button>
+                                        <button disabled={isActionLoading} onClick={() => toggleStatus(c)} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium rounded-lg transition-colors ${c.account_active ? "text-amber-400 bg-amber-500/10 hover:bg-amber-500/20" : "text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20"} disabled:opacity-50`}>
+                                            <PowerOff className="w-3.5 h-3.5" /> {c.account_active ? "Deactivate" : "Activate"}
+                                        </button>
+                                        <button onClick={() => confirmDeleteTrigger(c)} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 rounded-lg transition-colors">
+                                            <UserMinus className="w-3.5 h-3.5" /> Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* ─── Desktop Table (md and above) ─── */}
+                        <table className="hidden md:table w-full text-left text-sm whitespace-nowrap">
                             <thead className="bg-[#1a1a1a]/50 text-zinc-400 text-xs uppercase tracking-wider">
                                 <tr>
                                     <th className="px-6 py-4 font-semibold">Name</th>
@@ -147,46 +185,26 @@ export default function CustomersPage() {
                                         <td className="px-6 py-4 text-zinc-300">{c.email}</td>
                                         <td className="px-6 py-4">
                                             {c.account_active ? (
-                                                <span className="px-2.5 py-1 rounded-lg border bg-emerald-500/10 border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase">
-                                                    Active
-                                                </span>
+                                                <span className="px-2.5 py-1 rounded-lg border bg-emerald-500/10 border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase">Active</span>
                                             ) : (
-                                                <span className="px-2.5 py-1 rounded-lg border bg-rose-500/10 border-rose-500/20 text-rose-400 text-xs font-semibold uppercase">
-                                                    Deactivated
-                                                </span>
+                                                <span className="px-2.5 py-1 rounded-lg border bg-rose-500/10 border-rose-500/20 text-rose-400 text-xs font-semibold uppercase">Deactivated</span>
                                             )}
                                         </td>
                                         <td className="px-6 py-4 text-zinc-500 text-xs font-mono">
-                                            {c.last_login
-                                                ? new Date(c.last_login).toLocaleString("en-US", { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-                                                : "Never"
-                                            }
+                                            {c.last_login ? new Date(c.last_login).toLocaleString("en-US", { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : "Never"}
                                         </td>
                                         <td className="px-6 py-4 text-zinc-500 text-xs font-mono">
                                             {new Date(c.created_at).toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' })}
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-3 pointer-events-auto relative">
-                                                <button
-                                                    onClick={() => router.push(`/admin/submissions/${c.id}`)}
-                                                    className="p-1.5 text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-md transition-colors"
-                                                    title="View Profile"
-                                                >
+                                                <button onClick={() => router.push(`/admin/submissions/${c.id}`)} className="p-1.5 text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-md transition-colors" title="View Profile">
                                                     <Eye className="w-4 h-4" />
                                                 </button>
-                                                <button
-                                                    disabled={isActionLoading}
-                                                    onClick={() => toggleStatus(c)}
-                                                    className={`p-1.5 rounded-md transition-colors ${c.account_active ? "text-amber-500 hover:bg-amber-500/10 bg-amber-500/5" : "text-emerald-500 hover:bg-emerald-500/10 bg-emerald-500/5"} disabled:opacity-50`}
-                                                    title={c.account_active ? "Deactivate Account" : "Reactivate Account"}
-                                                >
+                                                <button disabled={isActionLoading} onClick={() => toggleStatus(c)} className={`p-1.5 rounded-md transition-colors ${c.account_active ? "text-amber-500 hover:bg-amber-500/10 bg-amber-500/5" : "text-emerald-500 hover:bg-emerald-500/10 bg-emerald-500/5"} disabled:opacity-50`} title={c.account_active ? "Deactivate Account" : "Reactivate Account"}>
                                                     <PowerOff className="w-4 h-4" />
                                                 </button>
-                                                <button
-                                                    onClick={() => confirmDeleteTrigger(c)}
-                                                    className="p-1.5 text-rose-500 hover:text-rose-400 bg-rose-500/5 hover:bg-rose-500/10 rounded-md transition-colors"
-                                                    title="Delete Account"
-                                                >
+                                                <button onClick={() => confirmDeleteTrigger(c)} className="p-1.5 text-rose-500 hover:text-rose-400 bg-rose-500/5 hover:bg-rose-500/10 rounded-md transition-colors" title="Delete Account">
                                                     <UserMinus className="w-4 h-4" />
                                                 </button>
                                             </div>

@@ -30,7 +30,8 @@ export default function WhyUsPage() {
                 </section>
 
                 {/* 2. CORE DIFFERENCES */}
-                <section className="w-full space-y-12">
+                {/* Hidden on mobile */}
+                <section className="hidden md:block w-full space-y-12">
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -95,7 +96,43 @@ export default function WhyUsPage() {
                         How We Work
                     </motion.h2>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-12">
+                    {/* Mobile flow version */}
+                    <div className="block md:hidden space-y-8 pb-12 px-2">
+                        {[
+                            {
+                                title: "Idea",
+                                description: "We validate requirements and map out a clear specification before writing any code."
+                            },
+                            {
+                                title: "Architecture",
+                                description: "We design data models, APIs, and scalable infrastructure to ensure the foundation is robust."
+                            },
+                            {
+                                title: "Production",
+                                description: "We develop, test, and containerize the application for secure deployment into real environments."
+                            }
+                        ].map((item, i) => (
+                            <div key={item.title} className="flex items-start gap-5 relative">
+                                {/* Flow line connecting steps */}
+                                {i !== 2 && (
+                                    <div className="absolute top-10 left-4 w-[2px] h-full bg-zinc-800 -z-10" />
+                                )}
+                                <div className="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-white text-black font-bold text-sm z-10 shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                                    {i + 1}
+                                </div>
+                                <div className="pt-1">
+                                    <h3 className="font-bold text-white text-lg tracking-tight mb-1">{item.title}</h3>
+                                    <p className="text-sm text-zinc-400 font-[family-name:var(--font-body)] leading-relaxed">
+                                        {item.description}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Desktop version */}
+
+                    <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-8 pb-12">
                         {[
                             {
                                 title: "Idea",

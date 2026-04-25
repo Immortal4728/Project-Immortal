@@ -230,7 +230,7 @@ export default function AdminDocumentsWorkspace({
     }
 
     return (
-        <div className="p-6 md:p-8 space-y-6 font-[family-name:var(--font-body)]">
+        <div className="p-4 sm:p-6 md:p-8 space-y-6 font-[family-name:var(--font-body)]">
             {/* Header */}
             <div className="space-y-1">
                 <div className="flex items-center gap-2">
@@ -239,7 +239,7 @@ export default function AdminDocumentsWorkspace({
                         Admin Document Workspace
                     </p>
                 </div>
-                <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white font-[family-name:var(--font-heading)]">
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-white font-[family-name:var(--font-heading)]">
                     {projectTitle || "Untitled Project"}
                 </h2>
                 <p className="text-zinc-500 text-sm">Student: {studentName}</p>
@@ -247,20 +247,120 @@ export default function AdminDocumentsWorkspace({
 
             {/* Messages */}
             {globalError && (
-                <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center gap-3 backdrop-blur-sm">
+                <div className="p-3 sm:p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center gap-3 backdrop-blur-sm">
                     <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />
                     <span className="text-rose-400 text-sm font-medium">{globalError}</span>
                 </div>
             )}
             {globalSuccess && (
-                <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-3 backdrop-blur-sm">
+                <div className="p-3 sm:p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-3 backdrop-blur-sm">
                     <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
                     <span className="text-emerald-400 text-sm font-medium">{globalSuccess}</span>
                 </div>
             )}
 
-            {/* Document Table */}
-            <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl overflow-hidden backdrop-blur-md">
+            {/* Hidden file inputs */}
+            {DOC_SLOTS.map((slot) => (
+                <input
+                    key={slot.id}
+                    type="file"
+                    ref={(el) => { fileInputRefs.current[slot.id] = el; }}
+                    className="hidden"
+                    onChange={(e) => {
+                        const selected = e.target.files?.[0];
+                        if (selected) handleUploadFile(selected, slot.id);
+                    }}
+                />
+            ))}
+
+            {/* ─── Mobile Card Layout (below md) ─── */}
+            <div className="md:hidden space-y-3">
+                {DOC_SLOTS.map((slot) => {
+                    const file = filesByType[slot.id];
+                    const isUploading = uploadingSlots[slot.id];
+                    const isDeleting = deletingId === file?.id;
+
+                    return (
+                        <div key={slot.id} className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-4 space-y-3">
+                            {/* Top: Icon + Label + Status */}
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-3 min-w-0">
+                                    <div className="w-9 h-9 rounded-xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-center shrink-0">
+                                        <FileText className="w-4 h-4 text-emerald-400" />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-[13px] font-bold text-white truncate">{slot.label}</p>
+                                        <p className="text-[11px] text-zinc-500">{slot.desc}</p>
+                                    </div>
+                                </div>
+                                {file ? (
+                                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-md uppercase tracking-wider shrink-0">
+                                        <Check className="w-3 h-3" />
+                                    </span>
+                                ) : (
+                                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-zinc-500 bg-white/[0.04] border border-white/[0.05] px-2 py-1 rounded-md uppercase tracking-wider shrink-0">
+                                        <X className="w-3 h-3" />
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* File name / uploading state */}
+                            {isUploading ? (
+                                <div className="flex items-center gap-2 text-emerald-400 py-1">
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    <span className="text-xs font-medium">Uploading...</span>
+                                </div>
+                            ) : file ? (
+                                <div className="py-1">
+                                    <p className="text-[13px] text-zinc-200 font-medium truncate">{file.file_name}</p>
+                                    <p className="text-[10px] text-zinc-500 mt-0.5">{formatDate(file.uploaded_at)}</p>
+                                </div>
+                            ) : null}
+
+                            {/* Actions */}
+                            <div className="flex items-center gap-2 pt-2 border-t border-white/[0.04]">
+                                {file ? (
+                                    <>
+                                        <a
+                                            href={file.file_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex-1 text-center text-xs font-semibold py-2.5 rounded-lg text-zinc-300 bg-white/[0.04] hover:bg-white/[0.08] transition-colors border border-white/[0.06]"
+                                        >
+                                            Open
+                                        </a>
+                                        <button
+                                            onClick={() => fileInputRefs.current[slot.id]?.click()}
+                                            className="flex-1 text-center text-xs font-semibold py-2.5 rounded-lg text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 transition-colors border border-emerald-500/20"
+                                            disabled={isUploading || isDeleting}
+                                        >
+                                            Replace
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(file)}
+                                            className="flex-1 text-center text-xs font-semibold py-2.5 rounded-lg text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 transition-colors border border-rose-500/20 flex items-center justify-center"
+                                            disabled={isUploading || isDeleting}
+                                        >
+                                            {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Delete"}
+                                        </button>
+                                    </>
+                                ) : (
+                                    <button
+                                        onClick={() => fileInputRefs.current[slot.id]?.click()}
+                                        className="w-full text-[11px] font-bold text-emerald-400 hover:text-emerald-300 py-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 hover:border-emerald-500/30 transition-all uppercase tracking-wider"
+                                        disabled={isUploading}
+                                    >
+                                        Upload
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            {/* ─── Desktop Document Table (md and above) ─── */}
+            <div className="hidden md:block bg-white/[0.02] border border-white/[0.06] rounded-2xl overflow-hidden backdrop-blur-md">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm whitespace-nowrap">
                         <thead className="bg-white/[0.02] border-b border-white/[0.06] text-zinc-500 text-[10px] uppercase tracking-widest font-semibold">
@@ -279,17 +379,6 @@ export default function AdminDocumentsWorkspace({
 
                                 return (
                                     <tr key={slot.id} className="hover:bg-white/[0.02] transition-colors group">
-                                        <td className="hidden">
-                                            <input
-                                                type="file"
-                                                ref={(el) => { fileInputRefs.current[slot.id] = el; }}
-                                                className="hidden"
-                                                onChange={(e) => {
-                                                    const selected = e.target.files?.[0];
-                                                    if (selected) handleUploadFile(selected, slot.id);
-                                                }}
-                                            />
-                                        </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-9 h-9 rounded-xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-center shrink-0">
@@ -374,7 +463,7 @@ export default function AdminDocumentsWorkspace({
             </div>
 
             {/* Hint */}
-            <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.01] flex items-start gap-3">
+            <div className="p-3 sm:p-4 rounded-xl border border-white/[0.04] bg-white/[0.01] flex items-start gap-3">
                 <Shield className="w-4 h-4 text-zinc-500 shrink-0 mt-0.5" />
                 <p className="text-[11px] text-zinc-500 leading-relaxed">
                     As an admin, you can directly upload, replace, or delete project documentation. Only pdf, docx, ppt, pptx, and txt files are accepted. Max file size: 20MB.

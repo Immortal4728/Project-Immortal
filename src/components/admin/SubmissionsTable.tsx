@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Eye, X, Search, Filter, Inbox, ChevronDown } from "lucide-react";
+import { Eye, X, Search, Filter, Inbox, ChevronDown, ChevronRight } from "lucide-react";
 
 export interface TableSubmission {
     id: string | number;
@@ -70,7 +70,7 @@ function StatusDropdown({ currentStatus, onSelect }: { currentStatus: string; on
                                         if (opt !== statusLower) onSelect(opt);
                                         setOpen(false);
                                     }}
-                                    className={`w-full text-left px-3.5 py-2 text-xs font-medium tracking-wide capitalize flex items-center gap-2.5 transition-colors
+                                    className={`w-full text-left px-3.5 py-2.5 text-xs font-medium tracking-wide capitalize flex items-center gap-2.5 transition-colors
                                         ${isActive ? 'bg-white/5 text-white' : 'text-zinc-400 hover:bg-white/[0.04] hover:text-white'}`}
                                 >
                                     <span className={`w-2 h-2 rounded-full ${oc.dot}`} />
@@ -82,6 +82,27 @@ function StatusDropdown({ currentStatus, onSelect }: { currentStatus: string; on
                 </>
             )}
         </div>
+    );
+}
+
+/* ─── Status Badge (read-only, for dashboard mobile cards) ─── */
+function StatusBadge({ status }: { status: string }) {
+    const statusLower = status?.toLowerCase() || 'pending';
+    const colorMap: Record<string, string> = {
+        pending: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        approved: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        rejected: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+    };
+    const dotMap: Record<string, string> = {
+        pending: 'bg-amber-400',
+        approved: 'bg-emerald-400',
+        rejected: 'bg-rose-400',
+    };
+    return (
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-semibold tracking-wide capitalize ${colorMap[statusLower] || colorMap.pending}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${dotMap[statusLower] || dotMap.pending}`} />
+            {statusLower}
+        </span>
     );
 }
 
@@ -146,7 +167,7 @@ export const SubmissionsTable = React.memo(function SubmissionsTable({ submissio
         <div className="w-full flex flex-col space-y-4 font-[family-name:var(--font-body)]">
             {/* ─── Search & Filter Bar ─── */}
             {!hideSearchAndFilter && (
-                <div className="flex flex-col sm:flex-row gap-3 justify-between items-center bg-zinc-900/80 p-3 rounded-xl border border-white/[0.06]">
+                <div className="flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center bg-zinc-900/80 p-3 rounded-xl border border-white/[0.06]">
                     <div className="relative w-full sm:w-96 group">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <Search className="h-4 w-4 text-zinc-500 group-focus-within:text-zinc-300 transition-colors" />
@@ -156,7 +177,7 @@ export const SubmissionsTable = React.memo(function SubmissionsTable({ submissio
                             placeholder="Search by name, email, project title..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-zinc-800/60 border border-white/[0.06] text-white text-sm rounded-lg focus:ring-1 focus:ring-indigo-500/40 focus:border-indigo-500/30 block pl-10 p-2.5 outline-none transition-all placeholder-zinc-500"
+                            className="w-full bg-zinc-800/60 border border-white/[0.06] text-white text-sm rounded-lg focus:ring-1 focus:ring-indigo-500/40 focus:border-indigo-500/30 block pl-10 p-3 sm:p-2.5 outline-none transition-all placeholder-zinc-500"
                         />
                         {searchTerm && (
                             <button onClick={() => setSearchTerm("")} className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-500 hover:text-white transition-colors">
@@ -170,7 +191,7 @@ export const SubmissionsTable = React.memo(function SubmissionsTable({ submissio
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="bg-zinc-800/60 border border-white/[0.06] text-white text-sm rounded-lg focus:ring-1 focus:ring-indigo-500/40 focus:border-indigo-500/30 block w-full pl-9 pr-9 p-2.5 outline-none transition-all appearance-none cursor-pointer hover:bg-zinc-800"
+                            className="bg-zinc-800/60 border border-white/[0.06] text-white text-sm rounded-lg focus:ring-1 focus:ring-indigo-500/40 focus:border-indigo-500/30 block w-full pl-9 pr-9 p-3 sm:p-2.5 outline-none transition-all appearance-none cursor-pointer hover:bg-zinc-800"
                         >
                             <option value="All">All Statuses</option>
                             <option value="Pending">Pending</option>
@@ -184,8 +205,77 @@ export const SubmissionsTable = React.memo(function SubmissionsTable({ submissio
                 </div>
             )}
 
-            {/* ─── Data Table ─── */}
-            <div className="bg-zinc-900/60 border border-white/[0.06] rounded-xl overflow-hidden shadow-xl">
+            {/* ─── Mobile Card Layout (below md) ─── */}
+            <div className="md:hidden space-y-3">
+                {filteredSubmissions.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-16 space-y-3 bg-zinc-900/60 border border-white/[0.06] rounded-xl">
+                        <Inbox className="w-10 h-10 text-zinc-600" />
+                        <p className="text-zinc-500 tracking-wide text-xs font-medium">No submissions found</p>
+                    </div>
+                ) : (
+                    filteredSubmissions.map((sub, idx) => {
+                        const statusLower = (sub.status || 'pending').toLowerCase();
+                        return (
+                            <div
+                                key={sub.id || idx}
+                                className="bg-zinc-900/60 border border-white/[0.06] rounded-xl p-4 space-y-3 transition-colors active:bg-zinc-900/80"
+                            >
+                                {/* Top row: Avatar + Name + Status */}
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="flex items-center gap-3 min-w-0">
+                                        <div className="flex-shrink-0 w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500/30 to-violet-500/20 flex items-center justify-center text-indigo-300 font-bold text-[10px] uppercase ring-1 ring-indigo-500/20">
+                                            {sub.name ? sub.name.substring(0, 2) : "?"}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="text-white font-medium text-sm truncate">{sub.name}</p>
+                                            <p className="text-zinc-500 text-[11px] truncate">{sub.email}</p>
+                                        </div>
+                                    </div>
+                                    {isDashboard ? (
+                                        <StatusBadge status={sub.status || 'pending'} />
+                                    ) : (
+                                        <StatusDropdown
+                                            currentStatus={sub.status || 'pending'}
+                                            onSelect={(newStatus) => onUpdateStatus(sub.id, newStatus)}
+                                        />
+                                    )}
+                                </div>
+
+                                {/* Project title */}
+                                <p className="text-zinc-300 text-[13px] font-medium line-clamp-1">
+                                    {sub.project_title || "Untitled Project"}
+                                </p>
+
+                                {/* Bottom row: Domain + Date + Action */}
+                                <div className="flex items-center justify-between gap-2 pt-1 border-t border-white/[0.04]">
+                                    <div className="flex items-center gap-2 min-w-0">
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-zinc-800 border border-white/[0.06] text-zinc-400 text-[11px] font-medium tracking-wide truncate max-w-[120px]">
+                                            {sub.domain}
+                                        </span>
+                                        <span className="text-zinc-600 text-[11px] whitespace-nowrap">
+                                            {getFormattedDate(sub)}
+                                        </span>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            router.push(`/admin/submissions/${sub.id}`);
+                                        }}
+                                        className="flex items-center gap-1 px-3 py-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all duration-150 text-xs font-medium"
+                                    >
+                                        View
+                                        <ChevronRight className="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })
+                )}
+            </div>
+
+            {/* ─── Desktop Data Table (md and above) ─── */}
+            <div className="hidden md:block bg-zinc-900/60 border border-white/[0.06] rounded-xl overflow-hidden shadow-xl">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm whitespace-nowrap">
                         <thead className="bg-zinc-900 border-b border-white/[0.06] text-zinc-500">

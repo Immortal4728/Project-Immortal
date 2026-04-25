@@ -88,7 +88,7 @@ export default function Dashboard() {
             {/* ─── Header ─── */}
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
                 <div className="space-y-1">
-                    <h1 className="text-[28px] font-bold tracking-tight text-white font-[family-name:var(--font-heading)]">Dashboard</h1>
+                    <h1 className="text-xl sm:text-2xl md:text-[28px] font-bold tracking-tight text-white font-[family-name:var(--font-heading)]">Dashboard</h1>
                     <p className="text-zinc-500 text-sm font-[family-name:var(--font-body)]">Overview of project requests and activity metrics.</p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -104,7 +104,7 @@ export default function Dashboard() {
             )}
 
             {/* ─── Statistic Cards ─── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
                 <StatsCard
                     title="Total Submissions"
                     value={stats.total}
@@ -135,11 +135,14 @@ export default function Dashboard() {
             </div>
 
             {/* ─── Analytics Charts ─── */}
-            <DashboardAnalytics 
-                domainData={domainDistribution}
-                statusData={statusDistribution}
-                timelineData={timelineData}
-            />
+            {/* Desktop version (hidden on mobile) */}
+            <div className="hidden md:block">
+                <DashboardAnalytics 
+                    domainData={domainDistribution}
+                    statusData={statusDistribution}
+                    timelineData={timelineData}
+                />
+            </div>
 
             {/* ─── Recent Submissions ─── */}
             <div className="space-y-4">

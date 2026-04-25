@@ -77,13 +77,13 @@ const ActivityTooltip = ({ active, payload, label }: { active?: boolean; payload
 
 /* ─── Custom Legend ─── */
 const ChartLegend = ({ items }: { items: Array<{ name: string; value: number; color: string }> }) => (
-    <div className="flex flex-col gap-2.5 min-w-[130px] max-w-[170px] pl-2">
+    <div className="flex flex-row flex-wrap gap-x-4 gap-y-2 md:flex-col md:gap-2.5 md:min-w-[130px] md:max-w-[170px] md:pl-2">
         {items.map((item, i) => (
-            <div key={i} className="flex items-center gap-2.5 group cursor-default">
+            <div key={i} className="flex items-center gap-2 md:gap-2.5 group cursor-default">
                 <div className="w-2.5 h-2.5 rounded-[3px] flex-shrink-0 transition-transform group-hover:scale-125" style={{ backgroundColor: item.color }} />
-                <div className="flex items-center justify-between flex-1 min-w-0">
+                <div className="flex items-center gap-1 md:justify-between md:flex-1 min-w-0">
                     <span className="text-[11px] text-zinc-400 font-medium truncate group-hover:text-zinc-200 transition-colors">{item.name}</span>
-                    <span className="text-[11px] text-zinc-600 font-semibold tabular-nums ml-2">{item.value}</span>
+                    <span className="text-[11px] text-zinc-600 font-semibold tabular-nums ml-1 md:ml-2">{item.value}</span>
                 </div>
             </div>
         ))}
@@ -92,7 +92,7 @@ const ChartLegend = ({ items }: { items: Array<{ name: string; value: number; co
 
 /* ─── Chart Card Wrapper ─── */
 const ChartCard = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-    <div className={`group bg-zinc-900 border border-zinc-800 rounded-xl p-6 shadow-xl transition-all duration-300 hover:border-zinc-700 hover:shadow-[0_8px_40px_rgb(0,0,0,0.3)] ${className}`}>
+    <div className={`group bg-zinc-900 border border-zinc-800 rounded-xl p-4 sm:p-6 shadow-xl transition-all duration-300 hover:border-zinc-700 hover:shadow-[0_8px_40px_rgb(0,0,0,0.3)] ${className}`}>
         {children}
     </div>
 );
@@ -133,16 +133,16 @@ export function DashboardAnalytics({ domainData: rawDomainData, statusData: rawS
                     </div>
                     <div className="flex items-center w-full">
                         {domainData.length > 0 ? (
-                            <div className="flex items-center w-full gap-2">
-                                <div className="flex-1">
-                                    <ResponsiveContainer width="100%" height={300}>
+                            <div className="flex flex-col md:flex-row items-center w-full gap-2">
+                                <div className="flex-1 w-full">
+                                    <ResponsiveContainer width="100%" height={240}>
                                         <PieChart>
                                             <Pie
                                                 data={domainData}
                                                 cx="50%"
                                                 cy="50%"
-                                                innerRadius={70}
-                                                outerRadius={105}
+                                                innerRadius={55}
+                                                outerRadius={85}
                                                 paddingAngle={3}
                                                 dataKey="value"
                                                 stroke="none"
@@ -179,16 +179,16 @@ export function DashboardAnalytics({ domainData: rawDomainData, statusData: rawS
                     </div>
                     <div className="flex items-center w-full">
                         {statusData.length > 0 ? (
-                            <div className="flex items-center w-full gap-2">
-                                <div className="flex-1">
-                                    <ResponsiveContainer width="100%" height={300}>
+                            <div className="flex flex-col md:flex-row items-center w-full gap-2">
+                                <div className="flex-1 w-full">
+                                    <ResponsiveContainer width="100%" height={240}>
                                         <PieChart>
                                             <Pie
                                                 data={statusData}
                                                 cx="50%"
                                                 cy="50%"
-                                                innerRadius={70}
-                                                outerRadius={105}
+                                                innerRadius={55}
+                                                outerRadius={85}
                                                 paddingAngle={3}
                                                 dataKey="value"
                                                 stroke="none"
@@ -231,7 +231,7 @@ export function DashboardAnalytics({ domainData: rawDomainData, statusData: rawS
                     </div>
                 </div>
                 {timelineData.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={300}>
+                    <ResponsiveContainer width="100%" height={250}>
                         <AreaChart data={timelineData} margin={{ top: 5, right: 15, left: -20, bottom: 5 }}>
                             <defs>
                                 <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">

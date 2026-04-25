@@ -555,10 +555,10 @@ export default function StudentDashboardPage() {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex items-center gap-3 shrink-0 self-start md:self-center">
+                        <div className="flex items-center gap-3 shrink-0 self-start md:self-center w-full md:w-auto mt-4 md:mt-0">
                             <button
                                 onClick={() => setShowLogout(true)}
-                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm font-medium transition-colors"
+                                className="flex items-center justify-center gap-2 px-4 py-3 md:py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm font-medium transition-colors w-full md:w-auto"
                             >
                                 <LogOut className="w-4 h-4" />
                                 Sign Out
@@ -653,7 +653,7 @@ export default function StudentDashboardPage() {
                                         href={project.meeting_link}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="mt-2 flex items-center justify-center gap-2 w-full px-5 py-2.5 rounded-lg bg-indigo-500 hover:bg-indigo-600 transition-colors text-sm font-medium text-white shadow-sm"
+                                        className="mt-2 flex items-center justify-center gap-2 w-full px-5 py-3 md:py-2.5 rounded-lg bg-indigo-500 hover:bg-indigo-600 transition-colors text-sm font-medium text-white shadow-sm"
                                     >
                                         <ExternalLink className="w-4 h-4" />
                                         Join Meeting
@@ -677,7 +677,54 @@ export default function StudentDashboardPage() {
                         title="Project Documentation"
                         icon={BookOpen}
                     >
-                        <div className="overflow-x-auto">
+                        {/* ─── Mobile Card Layout (below md) ─── */}
+                        <div className="md:hidden space-y-3">
+                            {DOCUMENT_TYPES.map(({ key, type, icon: Icon }) => {
+                                const doc = (project?.files || []).find((d: ProjectFile) => d.document_type === key);
+                                const isAvailable = !!doc;
+
+                                return (
+                                    <div key={type} className="bg-zinc-800/30 border border-white/[0.04] rounded-xl p-4 space-y-3">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <div className="flex items-center gap-3 min-w-0">
+                                                <div className="p-2 rounded-lg bg-white/5 text-zinc-400 shrink-0">
+                                                    <Icon className="w-4 h-4" />
+                                                </div>
+                                                <span className="text-sm font-medium text-zinc-200 truncate">{type}</span>
+                                            </div>
+                                            {isAvailable ? (
+                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-500 text-xs font-medium shrink-0">
+                                                    <CheckCircle className="w-3.5 h-3.5" />
+                                                    Uploaded
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-800 text-zinc-400 text-xs font-medium shrink-0">
+                                                    Not Available
+                                                </span>
+                                            )}
+                                        </div>
+                                        {doc && (
+                                            <p className="text-xs text-zinc-500 font-mono truncate">{doc.file_name}</p>
+                                        )}
+                                        <a
+                                            href={isAvailable ? doc!.file_url : undefined}
+                                            target={isAvailable ? "_blank" : undefined}
+                                            rel={isAvailable ? "noopener noreferrer" : undefined}
+                                            className={`w-full flex items-center justify-center py-2.5 rounded-lg text-xs font-medium transition-colors ${isAvailable
+                                                ? "bg-white/10 text-white hover:bg-white/15 cursor-pointer"
+                                                : "bg-transparent text-zinc-600 cursor-not-allowed border border-white/[0.04]"
+                                            }`}
+                                            onClick={(e) => { if (!isAvailable) e.preventDefault(); }}
+                                        >
+                                            Open
+                                        </a>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* ─── Desktop Table (md and above) ─── */}
+                        <div className="hidden md:block overflow-x-auto">
                                 <table className="w-full text-left border-collapse min-w-[600px]">
                                     <thead>
                                         <tr className="border-b border-white/5">
@@ -692,7 +739,6 @@ export default function StudentDashboardPage() {
                                             const doc = (project?.files || []).find((d: ProjectFile) => d.document_type === key);
                                             const isAvailable = !!doc;
 
-                                            // Handle long file names
                                             const displayFileName = doc?.file_name
                                                 ? (doc.file_name.length > 30 ? doc.file_name.substring(0, 27) + '...' : doc.file_name)
                                                 : "—";
@@ -752,7 +798,8 @@ export default function StudentDashboardPage() {
                 {/* ═══════════════════════════════════════════
                     § 6 — Project Deliverables
                    ═══════════════════════════════════════════ */}
-                <div className="">
+                {/* Hidden on mobile */}
+                <div className="hidden md:block">
                     <SectionCard
                         title="Project Deliverables"
                         icon={Download}
