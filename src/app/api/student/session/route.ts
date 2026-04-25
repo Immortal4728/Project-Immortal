@@ -2,7 +2,13 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { query } from "@/lib/db";
 
+/* ─── In-memory cache for session data (10s TTL) ─── */
+const sessionCache = new Map<string, { data: any; timestamp: number }>();
+const SESSION_CACHE_TTL = 10_000; // 10 seconds
+
 export async function GET() {
+    const startTime = Date.now();
+
     try {
         const cookieStore = await cookies();
         const sessionCookie = cookieStore.get("student_session")?.value;
@@ -32,15 +38,48 @@ export async function GET() {
             );
         }
 
-        // ─── Fetch student's project data ───
+        // ─── Check cache ───
+        const cacheKey = `${session.email}:${session.orderId}`;
+        const cached = sessionCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < SESSION_CACHE_TTL) {
+            console.log(`[Student Session] Cache hit for ${cacheKey} (age: ${Date.now() - cached.timestamp}ms)`);
+            return NextResponse.json(cached.data);
+        }
+
+        // ─── Fetch project + files in PARALLEL (not sequential) ───
+        // The project query is needed first to get IDs for the files query,
+        // BUT we can avoid this waterfall by using a single JOIN query instead.
+        const dbStart = Date.now();
+
         const result = await query(
-            `SELECT id, name, email, phone, project_title, domain, description,
-                    status, payment_status, meeting_link, meeting_date, meeting_time,
-                    order_id, created_at, updated_at, student_profile_photo, progress_stage
-             FROM project_requests
-             WHERE email = $1 AND order_id = $2`,
+            `SELECT
+                pr.id, pr.name, pr.email, pr.phone, pr.project_title, pr.domain,
+                pr.description, pr.status, pr.payment_status,
+                pr.meeting_link, pr.meeting_date, pr.meeting_time,
+                pr.order_id, pr.created_at, pr.updated_at,
+                pr.student_profile_photo, pr.progress_stage,
+                COALESCE(
+                    json_agg(
+                        json_build_object(
+                            'id', pf.id,
+                            'project_id', pf.project_id,
+                            'document_type', pf.document_type,
+                            'file_name', pf.file_name,
+                            'file_url', pf.file_url,
+                            'uploaded_at', pf.uploaded_at
+                        ) ORDER BY pf.uploaded_at DESC
+                    ) FILTER (WHERE pf.id IS NOT NULL),
+                    '[]'::json
+                ) AS files
+             FROM project_requests pr
+             LEFT JOIN project_files pf ON pf.project_id = pr.id
+             WHERE pr.email = $1 AND pr.order_id = $2
+             GROUP BY pr.id
+             ORDER BY pr.created_at DESC`,
             [session.email, session.orderId]
         );
+
+        const dbTime = Date.now() - dbStart;
 
         if (result.rowCount === 0) {
             return NextResponse.json(
@@ -49,33 +88,19 @@ export async function GET() {
             );
         }
 
-        // ─── Fetch associated files ───
-        const projectIds = result.rows.map((r: any) => r.id);
+        const response = { success: true, data: result.rows };
 
-        let files: any[] = [];
-        try {
-            const filesResult = await query(
-                `SELECT * FROM project_files WHERE project_id = ANY($1) ORDER BY uploaded_at DESC`,
-                [projectIds]
-            );
-            files = filesResult.rows;
-        } catch {
-            // project_files table may not exist or have no data — non-fatal
-        }
+        // ─── Update cache ───
+        sessionCache.set(cacheKey, { data: response, timestamp: Date.now() });
 
-        // Attach files to projects
-        const projectsWithFiles = result.rows.map((project: any) => ({
-            ...project,
-            files: files.filter((f: any) => f.project_id === project.id),
-        }));
+        const totalTime = Date.now() - startTime;
+        const fileCount = result.rows.reduce((sum: number, r: any) => sum + (Array.isArray(r.files) ? r.files.length : 0), 0);
+        console.log(`[Student Session] projects=${result.rowCount} files=${fileCount} dbMs=${dbTime} totalMs=${totalTime}`);
 
-        return NextResponse.json(
-            { success: true, data: projectsWithFiles },
-            { status: 200 }
-        );
+        return NextResponse.json(response, { status: 200 });
 
     } catch (err: any) {
-        console.error("Student session error:", err);
+        console.error("[Student Session] Error:", err);
         return NextResponse.json(
             { success: false, error: err.message || "Internal server error" },
             { status: 500 }

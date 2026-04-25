@@ -6,6 +6,7 @@ import Alert from "@/components/ui/alert";
 import { StatsCard } from "@/components/admin/StatsCard";
 import { SubmissionsTable, TableSubmission } from "@/components/admin/SubmissionsTable";
 import { DashboardAnalytics } from "@/components/admin/dashboard-analytics";
+import { AdminDashboardSkeleton } from "@/components/ui/dashboard-skeletons";
 
 type Analytics = {
     total: number;
@@ -22,20 +23,23 @@ export default function Dashboard() {
     const [actionAlert, setActionAlert] = useState<{ type: "success" | "error" | "info" | "warning", message: string } | null>(null);
 
     /* ─── Data Fetching ─── */
-    const { data: subRes, error: subError, mutate: mutateSubmissions } = useSWR("/api/admin/submissions", fetcher);
-    const { data: analyticsRes, error: analyticsError, mutate: mutateAnalytics } = useSWR("/api/admin/dashboard/stats", fetcher);
+    const { data: dashboardRes, error: dashboardError, mutate: mutateDashboard } = useSWR("/api/admin/dashboard", fetcher);
 
-    const submissions = subRes?.success ? subRes.data : [];
-    const analytics = analyticsRes?.success ? analyticsRes.data : null;
+    const dashboardData = dashboardRes?.success ? dashboardRes.data : null;
     
-    const error = subError || analyticsError || (subRes && !subRes.success ? subRes.error : null) || (analyticsRes && !analyticsRes.success ? analyticsRes.error : null);
-    const loading = !subRes || !analyticsRes;
+    const error = dashboardError || (dashboardRes && !dashboardRes.success ? dashboardRes.error : null);
+    const loading = !dashboardRes && !dashboardError;
+
+    const stats = dashboardData?.stats || { total: 0, pending: 0, approved: 0, rejected: 0 };
+    const recentSubmissions = dashboardData?.recentSubmissions || [];
+    const domainDistribution = dashboardData?.domainDistribution || [];
+    const statusDistribution = dashboardData?.statusDistribution || [];
+    const timelineData = dashboardData?.timelineData || [];
 
     /* ─── Refresh data helper ─── */
     const refreshData = async () => {
         try {
-            await mutateSubmissions();
-            await mutateAnalytics();
+            await mutateDashboard();
         } catch (e) {
             console.error("Failed to refresh data:", e);
         }
@@ -67,12 +71,7 @@ export default function Dashboard() {
 
     /* ─── Loading State ─── */
     if (loading) {
-        return (
-            <div className="w-full h-96 flex flex-col items-center justify-center space-y-4">
-                <div className="w-7 h-7 rounded-full border-2 border-zinc-700 border-t-indigo-400 animate-spin" />
-                <p className="text-zinc-500 font-medium tracking-wide text-sm">Loading dashboard...</p>
-            </div>
-        );
+        return <AdminDashboardSkeleton />;
     }
 
     /* ─── Error State ─── */
@@ -108,27 +107,27 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 <StatsCard
                     title="Total Submissions"
-                    value={analytics?.total || 0}
+                    value={stats.total}
                     icon={Folder}
                     iconColorClass="text-indigo-400"
                 />
                 <StatsCard
                     title="Pending"
-                    value={analytics?.pending || 0}
+                    value={stats.pending}
                     icon={Clock}
                     colorClass="text-amber-400"
                     iconColorClass="text-amber-400"
                 />
                 <StatsCard
                     title="Approved"
-                    value={analytics?.approved || 0}
+                    value={stats.approved}
                     icon={CheckCircle}
                     colorClass="text-emerald-400"
                     iconColorClass="text-emerald-400"
                 />
                 <StatsCard
                     title="Rejected"
-                    value={analytics?.rejected || 0}
+                    value={stats.rejected}
                     icon={XCircle}
                     colorClass="text-rose-400"
                     iconColorClass="text-rose-400"
@@ -136,13 +135,17 @@ export default function Dashboard() {
             </div>
 
             {/* ─── Analytics Charts ─── */}
-            <DashboardAnalytics submissions={submissions} />
+            <DashboardAnalytics 
+                domainData={domainDistribution}
+                statusData={statusDistribution}
+                timelineData={timelineData}
+            />
 
             {/* ─── Recent Submissions ─── */}
             <div className="space-y-4">
                 <h2 className="text-[11px] font-semibold text-zinc-500 tracking-widest uppercase font-[family-name:var(--font-body)]">Recent Submissions</h2>
                 <SubmissionsTable
-                    submissions={submissions}
+                    submissions={recentSubmissions}
                     onUpdateStatus={handleUpdateStatus}
                     isDashboard={true}
                     hideSearchAndFilter={true}

@@ -42,6 +42,8 @@ export default function EmployeeLoginPage() {
             const data = await res.json();
 
             if (data && data.success) {
+                // Prefetch dashboard data while the router navigates (fire-and-forget)
+                fetch("/api/employee/projects").catch(() => {});
                 router.push("/employee/dashboard");
             } else {
                 alert(data?.error || "Invalid credentials. Please check your email and password.");

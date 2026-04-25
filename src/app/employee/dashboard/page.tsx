@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import useSWR from "swr";
 import {
     LogOut,
     Search,
@@ -12,6 +13,7 @@ import {
     Sparkles,
 } from "lucide-react";
 import { LogoutModal } from "@/components/ui/logout-modal";
+import { EmployeeDashboardSkeleton } from "@/components/ui/dashboard-skeletons";
 
 interface ProjectFile {
     id: string;
@@ -70,76 +72,46 @@ function getStatusColor(status: string) {
     return { bg: "rgba(161,161,170,0.1)", border: "rgba(161,161,170,0.2)", text: "#a1a1aa" };
 }
 
+const fetcher = (url: string) => fetch(url).then(async (res) => {
+    const data = await res.json();
+    if (res.status === 401) throw new Error("UNAUTHORIZED");
+    if (!data.success) throw new Error(data.error || "Failed to fetch");
+    return data.data as ApprovedProject[];
+});
+
 export default function EmployeeDashboard() {
     const router = useRouter();
-    const [projects, setProjects] = useState<ApprovedProject[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [showLogout, setShowLogout] = useState(false);
 
-    useEffect(() => {
-        const fetchProjects = async () => {
-            try {
-                const res = await fetch("/api/employee/projects");
-                const data = await res.json();
-
-                if (data.success) {
-                    // Fetch files for each project
-                    const projectsWithFiles = await Promise.all(
-                        data.data.map(async (p: ApprovedProject) => {
-                            try {
-                                const fileRes = await fetch(`/api/employee/project/${p.id}`);
-                                const fileData = await fileRes.json();
-                                return { ...p, files: fileData.success ? fileData.data.files || [] : [] };
-                            } catch {
-                                return { ...p, files: [] };
-                            }
-                        })
-                    );
-                    setProjects(projectsWithFiles);
-                } else if (res.status === 401) {
+    const { data: projects, error, isLoading } = useSWR(
+        "/api/employee/projects",
+        fetcher,
+        {
+            keepPreviousData: true,
+            revalidateOnFocus: false,
+            onError: (err) => {
+                if (err.message === "UNAUTHORIZED") {
                     router.push("/employee/login");
-                } else {
-                    setError(data.error || "Failed to fetch projects");
                 }
-            } catch (err) {
-                console.error("Dashboard fetch error:", err);
-                setError("Something went wrong");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchProjects();
-    }, [router]);
+            },
+        }
+    );
 
     const handleConfirmLogout = async () => {
         await fetch("/api/logout", { method: "POST" });
         window.location.href = "/";
     };
 
-    const filteredProjects = projects.filter(
+    const filteredProjects = (projects || []).filter(
         (p) =>
             p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             p.project_title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             p.order_id?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="relative w-10 h-10">
-                        <div className="absolute inset-0 rounded-full border-2 border-violet-500/20" />
-                        <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-violet-400 animate-spin" />
-                    </div>
-                    <p className="text-zinc-500 font-medium tracking-wide text-sm font-[family-name:var(--font-body)]">
-                        Loading workspace...
-                    </p>
-                </div>
-            </div>
-        );
+    if (isLoading && !projects) {
+        return <EmployeeDashboardSkeleton />;
     }
 
     return (
@@ -176,11 +148,11 @@ export default function EmployeeDashboard() {
                     </button>
                 </div>
 
-                {error && (
+                {error && error.message !== "UNAUTHORIZED" && (
                     <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center gap-3 backdrop-blur-sm">
                         <AlertCircle className="w-5 h-5 text-rose-400" />
                         <span className="text-rose-400 text-sm font-medium font-[family-name:var(--font-body)]">
-                            {error}
+                            {error.message}
                         </span>
                     </div>
                 )}

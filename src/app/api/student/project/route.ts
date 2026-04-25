@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
-import { insforge } from "@/lib/insforge";
+import { query } from "@/lib/db";
 
 export async function POST(req: Request) {
+    const startTime = Date.now();
+
     try {
         const body = await req.json();
         const { email } = body;
@@ -21,53 +23,55 @@ export async function POST(req: Request) {
             );
         }
 
-        // Fetch the student's project(s) by email
-        const { data: projects, error } = await insforge.database
-            .from("project_requests")
-            .select("*")
-            .eq("email", email.toLowerCase().trim())
-            .order("created_at", { ascending: false });
+        const normalizedEmail = email.toLowerCase().trim();
 
-        if (error) {
-            console.error("Student project lookup error:", error);
-            return NextResponse.json(
-                { success: false, error: "Failed to fetch project data" },
-                { status: 500 }
-            );
-        }
+        // ─── Single query: project + files via LEFT JOIN ───
+        const dbStart = Date.now();
+        const result = await query(
+            `SELECT
+                pr.id, pr.name, pr.email, pr.phone, pr.project_title, pr.domain,
+                pr.description, pr.status, pr.payment_status,
+                pr.meeting_link, pr.meeting_date, pr.meeting_time,
+                pr.order_id, pr.created_at, pr.updated_at,
+                pr.student_profile_photo, pr.progress_stage,
+                COALESCE(
+                    json_agg(
+                        json_build_object(
+                            'id', pf.id,
+                            'project_id', pf.project_id,
+                            'document_type', pf.document_type,
+                            'file_name', pf.file_name,
+                            'file_url', pf.file_url,
+                            'uploaded_at', pf.uploaded_at
+                        ) ORDER BY pf.uploaded_at DESC
+                    ) FILTER (WHERE pf.id IS NOT NULL),
+                    '[]'::json
+                ) AS files
+             FROM project_requests pr
+             LEFT JOIN project_files pf ON pf.project_id = pr.id
+             WHERE pr.email = $1
+             GROUP BY pr.id
+             ORDER BY pr.created_at DESC`,
+            [normalizedEmail]
+        );
+        const dbTime = Date.now() - dbStart;
 
-        if (!projects || projects.length === 0) {
+        if (result.rowCount === 0) {
             return NextResponse.json(
                 { success: false, error: "No project found for this email address" },
                 { status: 404 }
             );
         }
 
-        // Fetch files for each project
-        const projectIds = projects.map((p: any) => p.id);
-        const { data: files, error: filesError } = await insforge.database
-            .from("project_files")
-            .select("*")
-            .in("project_id", projectIds)
-            .order("uploaded_at", { ascending: false });
-
-        if (filesError) {
-            console.error("Project files lookup error:", filesError);
-            // Non-fatal — continue without files
-        }
-
-        // Attach files to their respective projects
-        const projectsWithFiles = projects.map((project: any) => ({
-            ...project,
-            files: (files || []).filter((f: any) => f.project_id === project.id),
-        }));
+        const totalTime = Date.now() - startTime;
+        console.log(`[Student Project] email=${normalizedEmail} projects=${result.rowCount} dbMs=${dbTime} totalMs=${totalTime}`);
 
         return NextResponse.json(
-            { success: true, data: projectsWithFiles },
+            { success: true, data: result.rows },
             { status: 200 }
         );
-    } catch (error) {
-        console.error("Student project API error:", error);
+    } catch (error: any) {
+        console.error("[Student Project] Error:", error);
         return NextResponse.json(
             { success: false, error: "Internal server error" },
             { status: 500 }

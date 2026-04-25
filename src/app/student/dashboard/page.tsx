@@ -40,21 +40,14 @@ import {
     ZoomOut,
 } from "lucide-react";
 import { LogoutModal } from "@/components/ui/logout-modal";
-import { insforge } from "@/lib/insforge";
+import { StudentDashboardSkeleton } from "@/components/ui/dashboard-skeletons";
 
 /* ─── Types ─── */
-interface ProjectDocument {
-    id: string;
-    project_id: string;
-    document_type: string;
-    file_name: string;
-    file_url: string;
-    uploaded_at: string;
-}
 
 interface ProjectFile {
     id: string;
     project_id: string;
+    document_type?: string;
     file_name: string;
     file_url: string;
     uploaded_at: string;
@@ -361,9 +354,8 @@ export default function StudentDashboardPage() {
     const [error, setError] = useState<string | null>(null);
     const [showLogout, setShowLogout] = useState(false);
 
-    // New state for Project Documents
-    const [docsLoading, setDocsLoading] = useState(false);
-    const [projectDocs, setProjectDocs] = useState<ProjectDocument[]>([]);
+    // Ref guard to prevent React Strict Mode double-fetch
+    const hasFetched = useRef(false);
 
     // Profile photo upload states
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -420,32 +412,10 @@ export default function StudentDashboardPage() {
     };
 
     useEffect(() => {
+        if (hasFetched.current) return;
+        hasFetched.current = true;
         fetchProjects();
     }, []);
-
-    useEffect(() => {
-        if (projects.length > 0) {
-            fetchProjectDocs(projects[0].id);
-        }
-    }, [projects]);
-
-    const fetchProjectDocs = async (projectId: string) => {
-        try {
-            setDocsLoading(true);
-            const { data, error } = await insforge.database
-                .from("project_files")
-                .select("*")
-                .eq("project_id", projectId);
-
-            if (data && !error) {
-                setProjectDocs(data);
-            }
-        } catch (err) {
-            console.error("Error fetching project docs:", err);
-        } finally {
-            setDocsLoading(false);
-        }
-    };
 
     const fetchProjects = async () => {
         try {
@@ -492,16 +462,7 @@ export default function StudentDashboardPage() {
 
     /* ─── Loading ─── */
     if (loading) {
-        return (
-            <div className="min-h-screen bg-[#050505] flex items-center justify-center font-[family-name:var(--font-body)]">
-                <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="w-8 h-8 text-zinc-500 animate-spin" />
-                    <p className="text-zinc-500 font-medium text-sm">
-                        Loading your dashboard...
-                    </p>
-                </div>
-            </div>
-        );
+        return <StudentDashboardSkeleton />;
     }
 
     /* ─── Error ─── */
@@ -615,7 +576,6 @@ export default function StudentDashboardPage() {
                             Project Progress
                         </h2>
                     </div>
-                    {(() => { console.log("Current progress stage:", project?.progress_stage); return null; })()}
                     <ProgressTracker status={project?.progress_stage || project?.status || "pending"} />
                 </div>
 
@@ -717,12 +677,7 @@ export default function StudentDashboardPage() {
                         title="Project Documentation"
                         icon={BookOpen}
                     >
-                        {docsLoading ? (
-                            <div className="py-8 flex justify-center">
-                                <Loader2 className="w-6 h-6 text-zinc-500 animate-spin" />
-                            </div>
-                        ) : (
-                            <div className="overflow-x-auto">
+                        <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse min-w-[600px]">
                                     <thead>
                                         <tr className="border-b border-white/5">
@@ -734,7 +689,7 @@ export default function StudentDashboardPage() {
                                     </thead>
                                     <tbody className="divide-y divide-white/5">
                                         {DOCUMENT_TYPES.map(({ key, type, icon: Icon }) => {
-                                            const doc = projectDocs.find(d => d.document_type === key);
+                                            const doc = (project?.files || []).find((d: ProjectFile) => d.document_type === key);
                                             const isAvailable = !!doc;
 
                                             // Handle long file names
@@ -791,7 +746,6 @@ export default function StudentDashboardPage() {
                                     </tbody>
                                 </table>
                             </div>
-                        )}
                     </SectionCard>
                 </div>
 

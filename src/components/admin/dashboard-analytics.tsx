@@ -17,19 +17,10 @@ import {
     AreaChart,
 } from "recharts";
 
-/* ─── Types ─── */
-interface Submission {
-    id: string | number;
-    domain?: string;
-    status?: string;
-    created_at?: string;
-    date?: string;
-    submittedAt?: string;
-    [key: string]: unknown;
-}
-
 interface DashboardAnalyticsProps {
-    submissions: Submission[];
+    domainData: Array<{ name: string; value: number }>;
+    statusData: Array<{ name: string; value: number }>;
+    timelineData: Array<{ date: string; submissions: number }>;
 }
 
 /* ─── Color Palettes ─── */
@@ -107,59 +98,23 @@ const ChartCard = ({ children, className = "" }: { children: React.ReactNode; cl
 );
 
 /* ─── Main Component ─── */
-export function DashboardAnalytics({ submissions }: DashboardAnalyticsProps) {
-    /* 1️⃣ Domain Distribution */
+export function DashboardAnalytics({ domainData: rawDomainData, statusData: rawStatusData, timelineData }: DashboardAnalyticsProps) {
+    // Map colors to the incoming data
     const domainData = useMemo(() => {
-        const counts: Record<string, number> = {};
-        submissions.forEach(sub => {
-            const domain = (sub.domain as string) || "Other";
-            counts[domain] = (counts[domain] || 0) + 1;
-        });
-        return Object.entries(counts)
-            .map(([name, value]) => ({
-                name,
-                value,
-                fill: DOMAIN_COLORS[name] || DOMAIN_FALLBACKS[Object.keys(counts).indexOf(name) % DOMAIN_FALLBACKS.length],
-            }))
-            .sort((a, b) => b.value - a.value);
-    }, [submissions]);
+        return rawDomainData.map((d, i) => ({
+            ...d,
+            fill: DOMAIN_COLORS[d.name] || DOMAIN_FALLBACKS[i % DOMAIN_FALLBACKS.length]
+        }));
+    }, [rawDomainData]);
 
-    /* 2️⃣ Status Distribution */
     const statusData = useMemo(() => {
-        const counts = { Pending: 0, Approved: 0, Rejected: 0 };
-        submissions.forEach(sub => {
-            const s = ((sub.status as string) || "pending").toLowerCase();
-            if (s === "approved") counts.Approved++;
-            else if (s === "rejected") counts.Rejected++;
-            else counts.Pending++;
-        });
-        return [
-            { name: "Pending", value: counts.Pending, fill: STATUS_COLORS.Pending },
-            { name: "Approved", value: counts.Approved, fill: STATUS_COLORS.Approved },
-            { name: "Rejected", value: counts.Rejected, fill: STATUS_COLORS.Rejected },
-        ].filter(d => d.value > 0);
-    }, [submissions]);
+        return rawStatusData.map(d => ({
+            ...d,
+            fill: STATUS_COLORS[d.name] || "#6b7280"
+        }));
+    }, [rawStatusData]);
 
-    /* 3️⃣ Daily Submission Activity */
-    const timelineData = useMemo(() => {
-        const counts: Record<string, number> = {};
-        const sorted = [...submissions].sort((a, b) => {
-            const dA = new Date((a.created_at || a.date || a.submittedAt || 0) as string).getTime();
-            const dB = new Date((b.created_at || b.date || b.submittedAt || 0) as string).getTime();
-            return dA - dB;
-        });
-
-        sorted.forEach(sub => {
-            const d = sub.created_at || sub.date || sub.submittedAt;
-            if (!d) return;
-            const dateStr = new Date(d as string).toLocaleDateString(undefined, { month: "short", day: "numeric" });
-            counts[dateStr] = (counts[dateStr] || 0) + 1;
-        });
-
-        return Object.entries(counts).map(([date, submissions]) => ({ date, submissions }));
-    }, [submissions]);
-
-    if (submissions.length === 0) return null;
+    if (!rawDomainData.length && !rawStatusData.length && !timelineData.length) return null;
 
     return (
         <div className="space-y-6 mt-8">

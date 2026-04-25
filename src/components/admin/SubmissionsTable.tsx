@@ -85,8 +85,8 @@ function StatusDropdown({ currentStatus, onSelect }: { currentStatus: string; on
     );
 }
 
-/* ─── Main Table ─── */
-export function SubmissionsTable({ submissions, onUpdateStatus, hideSearchAndFilter = false, isDashboard = false }: SubmissionsTableProps) {
+/* ─── Main Table (memoized to prevent re-renders when only page state changes) ─── */
+export const SubmissionsTable = React.memo(function SubmissionsTable({ submissions, onUpdateStatus, hideSearchAndFilter = false, isDashboard = false }: SubmissionsTableProps) {
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("All");
@@ -288,4 +288,4 @@ export function SubmissionsTable({ submissions, onUpdateStatus, hideSearchAndFil
             </div>
         </div>
     );
-}
+});

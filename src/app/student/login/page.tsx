@@ -42,6 +42,8 @@ export default function StudentLoginPage() {
             const data = await res.json();
 
             if (data && data.success) {
+                // Prefetch dashboard data while the router navigates (fire-and-forget)
+                fetch("/api/student/session", { credentials: "include" }).catch(() => {});
                 router.push("/student/dashboard");
             } else {
                 alert(data?.error || "Invalid credentials. Please check your email and password.");

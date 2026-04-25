@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
 
 export async function POST(req: Request) {
+    const startTime = Date.now();
+
     try {
         const body = await req.json();
         const { email, password } = body;
@@ -16,16 +18,21 @@ export async function POST(req: Request) {
 
         const normalizedEmail = email.trim().toLowerCase();
 
-        // ─── Query database for matching credentials ───
+        // ─── Auth query: fetch ONLY the columns needed for authentication ───
+        const dbStart = Date.now();
         const result = await query(
-            `SELECT * FROM employees
+            `SELECT id, name, email, role
+             FROM employees
              WHERE email = $1
-             AND password = $2
-             AND active = true`,
+               AND password = $2
+               AND active = true
+             LIMIT 1`,
             [normalizedEmail, password]
         );
+        const dbTime = Date.now() - dbStart;
 
         if (result.rowCount === 0) {
+            console.log(`[Employee Login] Failed for ${normalizedEmail} dbMs=${dbTime}`);
             return NextResponse.json(
                 { success: false, error: "Invalid credentials" },
                 { status: 401 }
@@ -57,10 +64,13 @@ export async function POST(req: Request) {
             maxAge: 60 * 60 * 24 * 7, // 7 days
         });
 
+        const totalTime = Date.now() - startTime;
+        console.log(`[Employee Login] OK for ${normalizedEmail} dbMs=${dbTime} totalMs=${totalTime}`);
+
         return response;
 
     } catch (err: any) {
-        console.error("Employee login error:", err);
+        console.error("[Employee Login] Error:", err);
         return NextResponse.json(
             { success: false, error: err.message || "Internal server error" },
             { status: 500 }
