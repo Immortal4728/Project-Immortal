@@ -52,20 +52,9 @@ export const SignIn1 = () => {
             localStorage.setItem("token", token);
             document.cookie = `token=${token}; path=/; max-age=86400`;
 
-            // Check Firebase email verification status
-            if (!userCredential.user.emailVerified) {
-                // Send verification email
-                try {
-                    await sendEmailVerification(userCredential.user);
-                } catch (verifyErr) {
-                    // Email may already have been sent recently, continue anyway
-                    console.log("Verification email send attempt:", verifyErr);
-                }
-                router.push("/verify-email");
-                return;
-            }
-
-            // Email is verified — go straight to dashboard
+            // Check Firebase email verification status bypassed
+            
+            // Go straight to dashboard
             router.push("/admin/dashboard");
 
         } catch (err: unknown) {
